@@ -30,11 +30,11 @@ window.CLINIC = {
   name: 'Smile Dental Clinic',
   wordmark: 'Smile Dental Clinic', // set beside the logo mark in the heading font (header and footer)
   logo: {
-    // The mark: one SVG path in a 48 x 48 box, drawn as a round-capped stroke. Ink colour on light
-    // backgrounds, limestone on dark ones and photos. This one is a soft "S" whose lower curve
-    // becomes a smile. tools/build.py also writes assets/logo/*.svg and the favicons from it.
-    mark: 'M34 13.5C31 9.5 25 8 20.5 9.5C15 11.5 15 18 20 20.5L28 24.5C34 27.5 35 34 30.5 37.5C25 41.5 15 40.5 10 35',
-    stroke: 3.4,
+    // The mark: SVG path data in a 40 x 40 box, drawn as a round-capped stroke: ink on light
+    // backgrounds, limestone on dark ones and photos. This one is a single-line tooth with a smile.
+    // tools/build.py also writes assets/logo/*.svg and the favicons from it.
+    mark: 'M14 7C9 7 6.5 11 7.3 16.5C8 21.5 10 24 10.6 29C11.2 33.5 12.5 35.5 14.3 35.5C16.3 35.5 16.8 32 17.4 29C18 26.5 18.8 25.5 20 25.5C21.2 25.5 22 26.5 22.6 29C23.2 32 23.7 35.5 25.7 35.5C27.5 35.5 28.8 33.5 29.4 29C30 24 32 21.5 32.7 16.5C33.5 11 31 7 26 7C23.5 7 22 8.6 20 8.6C18 8.6 16.5 7 14 7Z M14.5 17Q20 22.5 25.5 17',
+    stroke: 2.4,
   },
   tagline: 'Your family dentist on FC Road.',
   description: 'Family dental clinic on FC Road, Shivajinagar, Pune. Every step explained, no unnecessary treatment, and evening appointments until 8 PM, Monday to Saturday.',
@@ -415,9 +415,9 @@ window.CLINIC = {
     name: 'Riya',
     webhookUrl: 'https://viraaj19.app.n8n.cloud/webhook/36a7ae43-365d-4cc8-b5bc-33d197384391/chat',
     welcome: 'Hello, I’m Riya. I can answer questions about the clinic or take an appointment request for you.',
-    quick: ['Clinic timings', 'Where are you?', 'Treatments', 'Book a visit'],
+    quick: ['Clinic timings', 'Treatments', 'Book a visit', 'Where are you?'],
     hint: 'Hi, I’m Riya', // shown once beside the launcher on desktop, after 6 seconds
     // Mascot colours: theme colour names (bg, ink, stone, accent) or any hex value.
-    mascot: { circle: 'ink', body: 'bg', features: 'ink', cheeks: 'accent', headset: 'accent', showHeadset: true },
+    mascot: { circle: 'ink', body: 'bg', features: 'ink', cheeks: 'stone', headset: 'accent', showHeadset: true },
   },
 };

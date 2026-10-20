@@ -615,24 +615,67 @@
     });
   }
 
-  /* 13c. Riya: only a small launcher is drawn; the chat loads on the first click */
+  /* 13c. Riya: the mascot, a round launcher, and a one-time hint on desktop. The chat window
+          (riya.js) loads on the first click. Mascot colours come from config.riya.mascot. */
+  const TOOTH = 'M20 9C13 9 9 15 10 23C11 31 14 35 15 43C16 50 18 55 21 55C24 55 25 50 26 45C27 41 29 40 32 40'
+    + 'C35 40 37 41 38 45C39 50 40 55 43 55C46 55 48 50 49 43C50 35 53 31 54 23C55 15 51 9 44 9C39 9 36 12 32 12C28 12 25 9 20 9Z';
+  const mascotSVG = (cls = '') => {
+    const m = (C.riya && C.riya.mascot) || {};
+    const pal = (C.theme && C.theme.colors) || {};
+    const col = (key, fallback) => pal[m[key] || fallback] || m[key] || fallback;
+    const headset = m.showHeadset === false ? '' : `
+      <path d="M12 25C12 0 52 0 52 25" fill="none" stroke="${col('headset', 'accent')}" stroke-width="2.4" stroke-linecap="round"/>`;
+    const pads = m.showHeadset === false ? '' : `
+      <rect x="7.5" y="19" width="6" height="12" rx="3" fill="${col('headset', 'accent')}"/>
+      <rect x="50.5" y="19" width="6" height="12" rx="3" fill="${col('headset', 'accent')}"/>
+      <path d="M10.5 30C11 37 16 40.5 21.5 40.5" fill="none" stroke="${col('headset', 'accent')}" stroke-width="2.2" stroke-linecap="round"/>
+      <circle cx="22.5" cy="40.5" r="2.4" fill="${col('headset', 'accent')}"/>`;
+    return `<svg class="mascot ${cls}" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+      <circle cx="32" cy="32" r="32" fill="${col('circle', 'ink')}"/>
+      <g class="mascot__body"><g transform="translate(32 34) scale(.82) translate(-32 -32)">${headset}
+        <path d="${TOOTH}" fill="${col('body', 'bg')}"/>${pads}
+        <circle cx="21.5" cy="31.5" r="2.6" fill="${col('cheeks', 'stone')}"/>
+        <circle cx="42.5" cy="31.5" r="2.6" fill="${col('cheeks', 'stone')}"/>
+        <g class="mascot__eyes"><ellipse cx="25.5" cy="25.5" rx="2.8" ry="3.4" fill="${col('features', 'ink')}"/><ellipse cx="38.5" cy="25.5" rx="2.8" ry="3.4" fill="${col('features', 'ink')}"/></g>
+        <path d="M27.5 31.5Q32 35.8 36.5 31.5" fill="none" stroke="${col('features', 'ink')}" stroke-width="2" stroke-linecap="round"/>
+      </g></g></svg>`;
+  };
+  window.clinicMascot = mascotSVG;
   const riya = C.riya;
   if (riya && riya.enabled) {
     const launcher = document.createElement('button');
     launcher.type = 'button';
     launcher.className = 'riya-launcher';
-    launcher.textContent = `Ask ${riya.name}`;
+    launcher.innerHTML = mascotSVG();
     launcher.setAttribute('aria-expanded', 'false');
     launcher.setAttribute('aria-label', `Ask ${riya.name}, the clinic’s receptionist`);
     document.body.append(launcher);
     let chat = null;
+    let hint = null;
     launcher.addEventListener('click', async () => {
+      if (hint) hint.remove();
       if (!chat) {
         const { mountRiya } = await import(`${ASSETS}js/riya.js`);
-        chat = mountRiya({ clinic: C, launcher });
+        chat = mountRiya({ clinic: C, launcher, mascot: mascotSVG });
       }
       if (!launcher.matches('[aria-expanded="true"]')) track('Riya opened');
       chat.toggle();
     });
+    // Desktop, once per session: "Hi, I'm Riya" beside the launcher after 6s, gone after 6s more
+    try {
+      if (riya.hint && finePointer.matches && !sessionStorage.getItem('riya-hint')) {
+        sessionStorage.setItem('riya-hint', '1');
+        setTimeout(() => {
+          if (chat) return;
+          hint = document.createElement('p');
+          hint.className = 'riya-hint';
+          hint.setAttribute('aria-hidden', 'true');
+          hint.textContent = riya.hint;
+          document.body.append(hint);
+          requestAnimationFrame(() => hint.classList.add('is-visible'));
+          setTimeout(() => { if (hint) hint.classList.remove('is-visible'); }, 6000);
+        }, 6000);
+      }
+    } catch (e) { /* storage blocked: no hint */ }
   }
 })();

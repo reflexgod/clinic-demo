@@ -81,7 +81,7 @@ def theme_css(c):
     # Footer wordmark: its width in em (Fraunces at the size it is set, -0.02em tracking), so CSS can fit it
     wm_font = static_font(FONTS / head["file"], {"wght": 300, "opsz": 144})
     wm = c["wordmark"]
-    wm_em = advance(wm_font, wm) - 0.02 * (len(wm) - 1)
+    wm_em = advance(wm_font, wm) - 0.02 * (len(wm) - 1) + 0.76  # + the logo mark and its gap
     return "".join([
         f'@font-face{{font-family:"{head["family"]}";src:url("{{R}}assets/fonts/{head["file"]}") format("woff2");font-weight:{head["weight"]};font-display:swap}}',
         f'@font-face{{font-family:"{body["family"]}";src:url("{{R}}assets/fonts/{body["file"]}") format("woff2");font-weight:{body["weight"]};font-display:swap}}',
@@ -94,6 +94,13 @@ def theme_css(c):
 
 
 # ---------------------------------------------------------------------------------------------- pieces
+
+def mark_svg(c, cls="mark"):
+    """The logo mark as inline SVG, drawn in currentColor so it follows the text colour."""
+    lg = c["logo"]
+    return (f'<svg class="{cls}" viewBox="0 0 40 40" aria-hidden="true" focusable="false"><path d="{lg["mark"]}" fill="none" '
+            f'stroke="currentColor" stroke-width="{lg["stroke"]}" stroke-linecap="round" stroke-linejoin="round"/></svg>')
+
 
 def mask(text, i, tag="span"):
     return f'<{tag} class="mask"><span style="--i:{i}">{text}</span></{tag}>'
@@ -182,7 +189,7 @@ def header(c, R, home):
 <body class="{'has-hero' if home.get('hero') else 'no-hero'}">
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="header" data-header>
-    <a class="wordmark" href="{R or './'}" aria-label="{e(c['name'])}, home">{e(c['wordmark'])}</a>
+    <a class="brand" href="{R or './'}" aria-label="{e(c['name'])}, home">{mark_svg(c, "brand__mark")}<span class="wordmark">{e(c['wordmark'])}</span></a>
     <nav class="nav" aria-label="Main">
       <a href="{R}#treatments">Treatments</a>
       <a href="{R}results/">Results</a>
@@ -194,7 +201,7 @@ def header(c, R, home):
 
   <div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Menu" inert>
     <div class="menu__top">
-      <span class="wordmark">{e(c['wordmark'])}</span>
+      <span class="brand">{mark_svg(c, "brand__mark")}<span class="wordmark">{e(c['wordmark'])}</span></span>
       <button class="menu__close" type="button" data-menu-close>Close</button>
     </div>
     <nav class="menu__body" aria-label="Menu">
@@ -251,7 +258,7 @@ def footer(c, R):
       {demo}
       <li>{e(c['site']['credit'])}</li>
     </ul>
-    <p class="footer__wordmark" aria-hidden="true" data-wordmark><span>{e(c['wordmark'])}</span></p>
+    <p class="footer__wordmark" aria-hidden="true" data-wordmark><span>{mark_svg(c, "footer__mark")}{e(c['wordmark'])}</span></p>
   </footer>
 
   <nav class="mobile-bar" aria-label="Quick actions" data-mobile-bar inert>
@@ -852,22 +859,94 @@ def page_stats(c, R):
 
 # ---------------------------------------------------------------------------------------------- icons
 
+def path_points(d, steps=24):
+    """Polylines from SVG path data (absolute M, L, C, Q, Z), for rasterising the mark with Pillow."""
+    tokens = re.findall(r"[MLCQZ]|-?[\d.]+", d)
+    lines, cur, start, i, cmd = [], None, None, 0, None
+    while i < len(tokens):
+        if tokens[i] in "MLCQZ":
+            cmd = tokens[i]
+            i += 1
+            if cmd == "Z":
+                cur.append(start)
+                continue
+        nums = lambda n: [float(t) for t in tokens[i:i + n]]  # noqa: E731
+        if cmd == "M":
+            x, y = nums(2); i += 2
+            cur = [(x, y)]; start = (x, y); lines.append(cur)
+        elif cmd == "L":
+            x, y = nums(2); i += 2
+            cur.append((x, y))
+        elif cmd == "C":
+            x1, y1, x2, y2, x, y = nums(6); i += 6
+            x0, y0 = cur[-1]
+            for k in range(1, steps + 1):
+                t = k / steps
+                u = 1 - t
+                cur.append((u**3 * x0 + 3 * u * u * t * x1 + 3 * u * t * t * x2 + t**3 * x,
+                            u**3 * y0 + 3 * u * u * t * y1 + 3 * u * t * t * y2 + t**3 * y))
+        elif cmd == "Q":
+            x1, y1, x, y = nums(4); i += 4
+            x0, y0 = cur[-1]
+            for k in range(1, steps + 1):
+                t = k / steps
+                u = 1 - t
+                cur.append((u * u * x0 + 2 * u * t * x1 + t * t * x, u * u * y0 + 2 * u * t * y1 + t * t * y))
+    return lines
+
+
+def wordmark_path(c, size, x0, baseline):
+    """The wordmark as SVG outlines (Fraunces at the weight the site uses), so logo files need no font."""
+    from fontTools.pens.svgPathPen import SVGPathPen
+    from fontTools.pens.transformPen import TransformPen
+    font = static_font(FONTS / c["theme"]["fonts"]["heading"]["file"], {"wght": c["theme"]["fonts"]["heading"]["use"], "opsz": 48})
+    gs, cmap, upm = font.getGlyphSet(), font.getBestCmap(), font["head"].unitsPerEm
+    scale = size / upm
+    pen = SVGPathPen(gs)
+    x = x0
+    for ch in c["wordmark"]:
+        g = cmap.get(ord(ch))
+        if not g:
+            continue
+        gs[g].draw(TransformPen(pen, (scale, 0, 0, -scale, x, baseline)))
+        x += gs[g].width * scale - 0.01 * size
+    return pen.getCommands(), x
+
+
 def icons(c):
     col = c["theme"]["colors"]
-    letter = c["wordmark"].strip()[0]
+    lg = c["logo"]
+    mark = lambda colour, extra="": f'<path d="{lg["mark"]}" fill="none" stroke="{colour}" stroke-width="{lg["stroke"]}" stroke-linecap="round" stroke-linejoin="round"{extra}/>'  # noqa: E731
     (ROOT / "favicon.svg").write_text(
-        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="{col["ink"]}"/>'
-        f'<text x="32" y="45" text-anchor="middle" font-family="Georgia, serif" font-size="40" fill="{col["bg"]}">{e(letter)}</text></svg>\n',
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect width="40" height="40" fill="{col["bg"]}"/>{mark(col["ink"])}</svg>\n',
         encoding="utf-8", newline="\n")
-    im = Image.new("RGB", (180, 180), col["ink"])
-    font_path = next((p for p in [Path("C:/Windows/Fonts/georgia.ttf"), Path("/Library/Fonts/Georgia.ttf")] if p.is_file()), None)
-    font = ImageFont.truetype(str(font_path), 112) if font_path else ImageFont.load_default()
-    ImageDraw.Draw(im).text((90, 94), letter, font=font, fill=col["bg"], anchor="mm")
-    im.save(ROOT / "apple-touch-icon.png", optimize=True)
+    # Apple touch icon: the mark rasterised at 4x, then reduced for smooth edges
+    big = 180 * 4
+    im = Image.new("RGB", (big, big), col["bg"])
+    draw = ImageDraw.Draw(im)
+    k = big / 40 * 0.78
+    off = (big - 40 * k) / 2
+    width = round(lg["stroke"] * k)
+    for line in path_points(lg["mark"]):
+        pts = [(off + x * k, off + y * k) for x, y in line]
+        draw.line(pts, fill=col["ink"], width=width, joint="curve")
+        for px, py in (pts[0], pts[-1]):
+            draw.ellipse((px - width / 2, py - width / 2, px + width / 2, py + width / 2), fill=col["ink"])
+    im.resize((180, 180), Image.LANCZOS).save(ROOT / "apple-touch-icon.png", optimize=True)
     (ROOT / "site.webmanifest").write_text(json.dumps({
         "name": c["name"], "short_name": c["wordmark"].split()[0], "start_url": "./", "display": "browser",
         "background_color": col["bg"], "theme_color": col["bg"],
         "icons": [{"src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png"}]}, indent=2) + "\n", encoding="utf-8", newline="\n")
+    # Logo files: navy on limestone, limestone for dark backgrounds and photos, and the mark alone
+    out = ROOT / "assets" / "logo"
+    out.mkdir(parents=True, exist_ok=True)
+    words, end = wordmark_path(c, 26, 50, 29)
+    w = round(end + 4)
+    for name, ink in (("logo", col["ink"]), ("logo-light", col["bg"])):
+        (out / f"{name}.svg").write_text(
+            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} 40" role="img" aria-label="{e(c["name"])}">'
+            f'{mark(ink)}<path d="{words}" fill="{ink}"/></svg>\n', encoding="utf-8", newline="\n")
+    (out / "mark.svg").write_text(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">{mark(col["ink"])}</svg>\n', encoding="utf-8", newline="\n")
 
 
 # ---------------------------------------------------------------------------------------------- main

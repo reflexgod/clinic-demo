@@ -63,6 +63,17 @@ Photos live in `assets/img` as `<name>-<width>.{avif,webp,jpg}`; the config refe
 downloads, crops, grades and exports the demo's Unsplash photos (Indian patients, dentists and clinic rooms). `tools/sample_ba.py` makes the sample
 before/after pair (a simulated whitening, labelled as such). Credits: `CREDITS.md`.
 
+## Logo and Riya
+
+The logo mark (a single-line tooth with a smile) is SVG path data in `config.logo`. It appears in the
+header, menu, footer wordmark, Riya's header and the favicons, and the build writes
+`assets/logo/logo.svg`, `logo-light.svg` (for dark backgrounds and photos) and `mark.svg`. The wordmark in
+those files is converted to outlines, so they need no font.
+
+Riya's mascot is an inline SVG (a small tooth with a headset) coloured from `config.riya.mascot`. It blinks
+every few seconds, glances sideways while typing and gives one small bounce on a reply, and it stays still
+with reduced motion. The chat widget is deliberately softer than the page: rounded bubbles, chips and input.
+
 ## Riya
 
 With `riya.webhookUrl` set to an n8n Chat Trigger webhook, Riya talks to it live. Left empty, she

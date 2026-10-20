@@ -133,6 +133,8 @@ main p a:not(.link):hover, .details a:hover, .footer a:hover, .menu__foot a:hove
   transition: background-color .5s var(--ease), color .5s var(--ease);
 }
 .js .has-hero .header:not(.is-solid) { background: transparent; color: var(--bg); }
+.brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
+.brand__mark { width: 28px; height: 28px; flex: none; }
 .wordmark { font-size: clamp(1.15rem, 1.4vw, 1.3rem); line-height: 1; text-decoration: none; white-space: nowrap; }
 .nav { display: none; margin-left: auto; gap: 36px; }
 .nav a { font-size: 13px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; text-decoration: none; padding-block: 8px; }
@@ -456,6 +458,7 @@ main picture:hover img, .card:hover img, .card:focus-visible img, .case:hover im
   padding-bottom: .08em;
   user-select: none;
 }
+.footer__mark { display: inline-block; width: .62em; height: .62em; margin-right: .14em; vertical-align: -.02em; }
 
 .mobile-bar {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
@@ -470,54 +473,89 @@ main picture:hover img, .card:hover img, .card:focus-visible img, .case:hover im
 .mobile-bar a + a { background: rgba(245, 242, 236, .08); }
 @media (min-width: 900px) { .mobile-bar { display: none; } }
 
+/* Riya: the chat widget is friendlier than the page (rounded bubbles and chips), same palette */
 .riya-launcher {
   position: fixed; right: var(--gutter); bottom: 24px; z-index: 35;
-  padding: 13px 16px;
-  background: var(--ink); color: var(--bg);
-  font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase;
-  transition: transform .45s var(--ease), color .2s var(--ease);
+  width: 56px; height: 56px; padding: 0; border-radius: 50%; overflow: hidden;
+  transition: transform .45s var(--ease);
 }
-.riya-launcher:hover { color: var(--accent); }
+.riya-launcher .mascot { width: 100%; height: 100%; }
+.riya-launcher:hover { transform: translateY(-2px); }
 .riya-launcher[aria-expanded="true"] { visibility: hidden; }
 @media (max-width: 899px) {
-  .riya-launcher { bottom: 16px; padding: 11px 13px; }
+  .riya-launcher { bottom: 16px; }
   .has-bar .riya-launcher { transform: translateY(-56px); }
 }
+.riya-hint {
+  position: fixed; right: calc(var(--gutter) + 68px); bottom: 36px; z-index: 35;
+  padding: 8px 14px; border-radius: 12px; background: var(--stone); color: var(--ink); font-size: 14px;
+  opacity: 0; transform: translateX(6px); transition: opacity .4s var(--ease), transform .4s var(--ease); pointer-events: none;
+}
+.riya-hint.is-visible { opacity: 1; transform: none; }
+
 .riya {
   position: fixed; right: var(--gutter); bottom: 24px; z-index: 80;
-  width: min(400px, calc(100vw - 2 * var(--gutter)));
+  width: min(380px, calc(100vw - 2 * var(--gutter)));
   height: min(600px, calc(100vh - var(--header-h) - 48px));
   display: grid; grid-template-rows: auto 1fr auto auto;
   background: var(--bg); color: var(--ink);
-  border: 1px solid var(--ink);
+  border: 1px solid rgba(var(--ink-rgb), .2); border-radius: 16px; overflow: hidden;
   opacity: 0; transform: translateY(12px);
   transition: opacity .3s var(--ease), transform .3s var(--ease);
 }
 .riya.is-open { opacity: 1; transform: none; }
-.riya__head { display: flex; align-items: center; gap: 12px; padding: 16px 18px; background: var(--ink); color: var(--bg); }
-.riya__name { font-family: var(--serif); font-size: 1.25rem; line-height: 1.1; }
-.riya__status { font-size: 12px; color: rgba(245, 242, 236, .72); }
-.riya__close { margin-left: auto; font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; padding: 8px 0; }
-.riya__close:hover { color: var(--accent); }
-.riya__log { overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 10px; font-size: 15px; line-height: 1.5; }
-.riya__msg { max-width: 88%; padding: 10px 14px; white-space: pre-line; }
-.riya__msg--bot { background: var(--stone); align-self: flex-start; }
-.riya__msg--user { background: var(--ink); color: var(--bg); align-self: flex-end; }
-.riya__quick { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
-.riya__quick button { padding: 7px 12px; font-size: 13px; border: 1px solid rgba(var(--ink-rgb), .35); }
-.riya__quick button:hover { border-color: var(--ink); }
-.riya__typing { align-self: flex-start; font-size: 13px; color: var(--muted); }
-.riya__form { display: flex; gap: 8px; padding: 10px 18px; }
+.riya__head { display: flex; align-items: center; gap: 12px; padding: 14px 14px 14px 16px; background: var(--ink); color: var(--bg); }
+.riya__avatar--head { width: 40px; height: 40px; flex: none; }
+.riya__avatar--head .mascot { width: 40px; height: 40px; box-shadow: none; }
+.riya__name { font-family: var(--serif); font-size: 1.2rem; line-height: 1.1; }
+.riya__status { display: flex; align-items: center; gap: 6px; font-size: 12px; color: rgba(245, 242, 236, .75); margin-top: 2px; }
+.riya__mark { width: 14px; height: 14px; flex: none; }
+.riya__close { margin-left: auto; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; color: var(--bg); transition: background-color .2s var(--ease); }
+.riya__close svg { width: 20px; height: 20px; }
+.riya__close:hover { background: rgba(245, 242, 236, .12); }
+.riya__log { overflow-y: auto; padding: 16px 14px; display: flex; flex-direction: column; gap: 6px; font-size: 15px; line-height: 1.45; }
+.riya__row { display: flex; gap: 8px; align-items: flex-end; animation: riya-in .25s var(--ease) both; }
+@keyframes riya-in { from { opacity: 0; transform: translateY(6px); } }
+.riya__row--bot { flex-wrap: wrap; }
+.riya__row--user { justify-content: flex-end; margin-top: 6px; }
+.riya__row--bot .riya__avatar { width: 28px; height: 28px; flex: none; align-self: flex-start; }
+.riya__row--bot .riya__avatar .mascot { width: 28px; height: 28px; }
+.riya__row--bot:has(.riya__avatar svg) { margin-top: 6px; }
+.riya__msg { max-width: 80%; padding: 9px 13px; border-radius: 12px; white-space: pre-line; }
+.riya__row--bot .riya__msg { background: var(--stone); }
+.riya__row--user .riya__msg { background: var(--ink); color: var(--bg); }
+.riya__quick { display: flex; flex-wrap: wrap; gap: 6px; flex-basis: 100%; padding-left: 36px; margin-top: 4px; }
+.riya__quick button { padding: 7px 13px; border-radius: 999px; background: var(--stone); font-size: 13px; transition: background-color .2s var(--ease), color .2s var(--ease); }
+.riya__quick button:hover, .riya__quick button:focus-visible { background: var(--ink); color: var(--bg); }
+.riya__typing { display: flex; gap: 4px; padding: 13px 14px; border-radius: 12px; background: var(--stone); }
+.riya__typing span { width: 6px; height: 6px; border-radius: 50%; background: var(--ink); opacity: .35; animation: riya-dot 1.2s infinite; }
+.riya__typing span:nth-child(2) { animation-delay: .15s; }
+.riya__typing span:nth-child(3) { animation-delay: .3s; }
+@keyframes riya-dot { 30% { opacity: .9; transform: translateY(-2px); } }
+.riya__form { display: flex; gap: 8px; align-items: flex-end; padding: 10px 12px 6px; }
 .riya__form textarea {
-  flex: 1; resize: none; min-height: 44px; max-height: 120px;
-  padding: 11px 0; border: 0; border-bottom: 1px solid var(--ink); border-radius: 0;
-  background: transparent; font: inherit; font-size: 15px; color: inherit;
+  flex: 1; resize: none; min-height: 42px; max-height: 120px;
+  padding: 10px 16px; border: 0; border-radius: 21px;
+  background: var(--stone); font: inherit; font-size: 15px; color: inherit;
 }
-.riya__form textarea:focus { outline: 0; border-bottom-width: 2px; }
-.riya__send { font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; padding: 0 4px; }
-.riya__send:disabled { opacity: .4; }
-.riya__note { padding: 0 18px 14px; font-size: 12px; color: var(--muted); }
-@media (max-width: 599px) { .riya { inset: 0; width: auto; height: 100%; border: 0; } }
+.riya__form textarea:focus { outline: 2px solid var(--accent); outline-offset: 0; }
+.riya__send { width: 42px; height: 42px; flex: none; display: grid; place-items: center; border-radius: 50%; background: var(--accent); color: var(--ink); transition: background-color .2s var(--ease); }
+.riya__send svg { width: 20px; height: 20px; }
+.riya__send:hover { background: var(--ink); color: var(--bg); }
+.riya__send:disabled { opacity: .45; }
+.riya__note { padding: 0 16px 10px; font-size: 11px; color: var(--muted); text-align: center; }
+@media (max-width: 599px) { .riya { inset: 0; width: auto; height: 100%; border: 0; border-radius: 0; } }
+
+/* Mascot states: blink when idle, glance while typing, one small bounce on a reply */
+.mascot__eyes { transform-box: fill-box; transform-origin: center; animation: mascot-blink 5s infinite; }
+@keyframes mascot-blink { 0%, 94%, 100% { transform: scaleY(1); } 96% { transform: scaleY(.1); } }
+.is-typing .mascot__eyes { animation: mascot-glance 1.6s ease-in-out infinite; }
+@keyframes mascot-glance { 0%, 100% { transform: translateX(0); } 30% { transform: translateX(-2.5px); } 70% { transform: translateX(2.5px); } }
+.mascot.is-bouncing { animation: mascot-bounce .3s var(--ease-out) 1; }
+@keyframes mascot-bounce { 45% { transform: translateY(-4px); } }
+@media (prefers-reduced-motion: reduce) {
+  .mascot__eyes, .is-typing .mascot__eyes, .mascot.is-bouncing, .riya__row, .riya__typing span { animation: none !important; }
+}
 
 .demo-note {
   position: fixed; left: var(--gutter); right: var(--gutter); bottom: 24px; z-index: 90;

@@ -25,7 +25,7 @@ function demoReply(text, C) {
   return 'Thank you. I’ll pass that to the clinic team, who can answer in detail. Is there anything else, such as timings or directions?';
 }
 
-export function mountRiya({ clinic: C, launcher }) {
+export function mountRiya({ clinic: C, launcher, mascot }) {
   const R = C.riya;
   const root = document.documentElement;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -37,6 +37,9 @@ export function mountRiya({ clinic: C, launcher }) {
     sessionId = (crypto.randomUUID && crypto.randomUUID()) || String(Date.now()) + Math.random().toString(16).slice(2);
     try { sessionStorage.setItem('riya-session', sessionId); } catch (e) { /* storage blocked */ }
   }
+  const mark = C.logo
+    ? `<svg class="riya__mark" viewBox="0 0 40 40" aria-hidden="true"><path d="${C.logo.mark}" fill="none" stroke="currentColor" stroke-width="${C.logo.stroke * 1.2}" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+    : '';
 
   const panel = document.createElement('section');
   panel.className = 'riya';
@@ -46,55 +49,91 @@ export function mountRiya({ clinic: C, launcher }) {
   panel.hidden = true;
   panel.innerHTML = `
     <header class="riya__head">
-      <div>
+      <span class="riya__avatar riya__avatar--head">${mascot()}</span>
+      <div class="riya__id">
         <p class="riya__name" id="riya-title"></p>
-        <p class="riya__status"></p>
+        <p class="riya__status">${mark}<span></span></p>
       </div>
-      <button class="riya__close" type="button">Close</button>
+      <button class="riya__close" type="button" aria-label="Close chat">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
     </header>
-    <div class="riya__log" aria-live="polite">
-      <p class="riya__msg riya__msg--bot"></p>
-      <div class="riya__quick" role="group" aria-label="Suggested questions"></div>
-    </div>
+    <div class="riya__log" aria-live="polite"></div>
     <form class="riya__form">
       <label class="visually-hidden" for="riya-input">Message</label>
       <textarea id="riya-input" rows="1" autocomplete="off"></textarea>
-      <button class="riya__send" type="submit">Send</button>
+      <button class="riya__send" type="submit" aria-label="Send message">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
     </form>
     <p class="riya__note"></p>`;
   panel.querySelector('.riya__name').textContent = R.name;
-  panel.querySelector('.riya__status').textContent = `${C.name} · ${live ? 'Replies instantly' : 'Demo replies'}`;
-  panel.querySelector('.riya__msg--bot').textContent = R.welcome;
-  panel.querySelector('#riya-input').placeholder = `Ask ${R.name} anything…`;
+  panel.querySelector('.riya__status span').textContent = `${C.name} · usually replies in seconds`;
+  panel.querySelector('#riya-input').placeholder = `Message ${R.name}…`;
   panel.querySelector('.riya__note').textContent = live
-    ? `${R.name} passes your request to the clinic team. Appointments are confirmed by phone.`
-    : `Demo: ${R.name} answers from the clinic’s details. On a live site she is connected to the clinic.`;
-  const quick = panel.querySelector('.riya__quick');
-  R.quick.forEach((q) => {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.textContent = q;
-    quick.append(b);
-  });
+    ? `${R.name} is an AI assistant. Appointments are confirmed by the clinic team.`
+    : `Demo: ${R.name} answers from the clinic’s details.`;
   document.body.append(panel);
 
   const log = panel.querySelector('.riya__log');
   const form = panel.querySelector('.riya__form');
   const input = panel.querySelector('#riya-input');
   const send = panel.querySelector('.riya__send');
+  const headAvatar = panel.querySelector('.riya__avatar--head');
   let busy = false;
 
-  const addMessage = (text, who) => {
-    const p = document.createElement('p');
-    p.className = `riya__msg riya__msg--${who}`;
-    p.textContent = text;
-    log.append(p);
-    log.scrollTop = log.scrollHeight;
+  const scrollDown = () => { log.scrollTop = log.scrollHeight; };
+  const lastIsBot = () => { const last = log.lastElementChild; return Boolean(last && last.classList.contains('riya__row--bot')); };
+  // A bot row carries the mascot only when it starts a new group of bot messages
+  const botRow = (content) => {
+    const row = document.createElement('div');
+    row.className = 'riya__row riya__row--bot';
+    const avatar = document.createElement('span');
+    avatar.className = 'riya__avatar';
+    if (!lastIsBot()) avatar.innerHTML = mascot();
+    row.append(avatar, content);
+    log.append(row);
+    scrollDown();
+    return row;
   };
+  const bubble = (text) => {
+    const p = document.createElement('p');
+    p.className = 'riya__msg';
+    p.textContent = text;
+    return p;
+  };
+  const bounce = (el) => {
+    if (!el || reduceMotion) return;
+    el.classList.remove('is-bouncing');
+    void el.offsetWidth;
+    el.classList.add('is-bouncing');
+    el.addEventListener('animationend', () => el.classList.remove('is-bouncing'), { once: true });
+  };
+  const addUser = (text) => {
+    const row = document.createElement('div');
+    row.className = 'riya__row riya__row--user';
+    row.append(bubble(text));
+    log.append(row);
+    scrollDown();
+  };
+
+  // Welcome message and the suggestion chips
+  const welcome = botRow(bubble(R.welcome));
+  const quick = document.createElement('div');
+  quick.className = 'riya__quick';
+  quick.setAttribute('role', 'group');
+  quick.setAttribute('aria-label', 'Suggested questions');
+  R.quick.forEach((q) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = q;
+    quick.append(b);
+  });
+  welcome.append(quick);
 
   async function reply(text) {
     if (!live) {
-      await new Promise((r) => setTimeout(r, reduceMotion ? 0 : 600));
+      await new Promise((r) => setTimeout(r, reduceMotion ? 0 : 900));
       return demoReply(text, C);
     }
     const res = await fetch(R.webhookUrl, {
@@ -119,21 +158,25 @@ export function mountRiya({ clinic: C, launcher }) {
     busy = true;
     send.disabled = true;
     quick.hidden = true; // suggestions only before the conversation starts
-    addMessage(text, 'user');
+    addUser(text);
     if (window.clinicTrack) window.clinicTrack('Riya request sent');
-    const typing = document.createElement('p');
-    typing.className = 'riya__typing';
-    typing.textContent = `${R.name} is typing…`;
-    log.append(typing);
-    log.scrollTop = log.scrollHeight;
+    const dots = document.createElement('p');
+    dots.className = 'riya__typing';
+    dots.setAttribute('aria-label', `${R.name} is typing`);
+    dots.innerHTML = '<span></span><span></span><span></span>';
+    const typingRow = botRow(dots);
+    typingRow.classList.add('is-typing');
+    headAvatar.classList.add('is-typing');
+    let answer;
     try {
-      const answer = await reply(text);
-      typing.remove();
-      addMessage(String(answer || '…'), 'bot');
+      answer = String((await reply(text)) || '…');
     } catch (e) {
-      typing.remove();
-      addMessage(`Sorry, I couldn’t reach the clinic just now. Please call ${C.contact.phoneDisplay} or message us on WhatsApp.`, 'bot');
+      answer = `Sorry, I couldn’t reach the clinic just now. Please call ${C.contact.phoneDisplay} or message us on WhatsApp.`;
     }
+    typingRow.remove();
+    headAvatar.classList.remove('is-typing');
+    const row = botRow(bubble(answer));
+    bounce(row.querySelector('.mascot') || headAvatar.querySelector('.mascot'));
     busy = false;
     send.disabled = false;
   }
