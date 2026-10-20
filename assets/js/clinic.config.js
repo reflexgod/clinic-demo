@@ -19,7 +19,7 @@ window.CLINIC = {
   demo: true,
 
   site: {
-    url: 'https://example.com/', // canonical address, with trailing slash
+    url: 'https://demo.viraajautomates.tech/', // canonical address, with trailing slash
     lang: 'en-IN',
     locale: 'en_IN',
     noindex: true, // keep out of search engines (also robots.txt) until launch
