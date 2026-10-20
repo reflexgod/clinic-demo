@@ -227,5 +227,5 @@ export function mountRiya({ clinic: C, launcher, mascot }) {
   }
   panel.querySelector('.riya__close').addEventListener('click', close);
   launcher.setAttribute('aria-controls', 'riya');
-  return { open, close, toggle: () => (panel.classList.contains('is-open') ? close() : open()) };
+  return { open, close, ask, toggle: () => (panel.classList.contains('is-open') ? close() : open()) };
 }

@@ -74,6 +74,12 @@ Riya's mascot is an inline SVG (a small tooth with a headset) coloured from `con
 every few seconds, glances sideways while typing and gives one small bounce on a reply, and it stays still
 with reduced motion. The chat widget is deliberately softer than the page: rounded bubbles, chips and input.
 
+Proactive bubble (`config.riya.bubble`): once per session, after 5 seconds or 30% of the page, a small
+speech bubble with two chips appears beside the launcher (above it on phones, clear of the mobile bar) and
+the mascot waves once. A chip opens the chat and sends its text; × dismisses it for the session; it never
+shows if the chat was already opened. In demo mode, `?riya=open` opens the chat at once, for showing
+prospects. Events: `riya_bubble_shown`, `riya_bubble_clicked`.
+
 ## Riya
 
 With `riya.webhookUrl` set to an n8n Chat Trigger webhook, Riya talks to it live. Left empty, she

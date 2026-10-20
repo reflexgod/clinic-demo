@@ -486,12 +486,28 @@ main picture:hover img, .card:hover img, .card:focus-visible img, .case:hover im
   .riya-launcher { bottom: 16px; }
   .has-bar .riya-launcher { transform: translateY(-56px); }
 }
-.riya-hint {
-  position: fixed; right: calc(var(--gutter) + 68px); bottom: 36px; z-index: 35;
-  padding: 8px 14px; border-radius: 12px; background: var(--stone); color: var(--ink); font-size: 14px;
-  opacity: 0; transform: translateX(6px); transition: opacity .4s var(--ease), transform .4s var(--ease); pointer-events: none;
+.riya-bubble {
+  position: fixed; right: calc(var(--gutter) + 68px); bottom: 24px; z-index: 36;
+  width: min(300px, calc(100vw - 2 * var(--gutter) - 68px));
+  padding: 14px 36px 14px 16px; border-radius: 14px;
+  background: var(--bg); color: var(--ink); border: 1px solid rgba(var(--ink-rgb), .14);
+  opacity: 0; transform: translateY(6px); transition: opacity .3s var(--ease), transform .3s var(--ease);
 }
-.riya-hint.is-visible { opacity: 1; transform: none; }
+.riya-bubble.is-visible { opacity: 1; transform: none; }
+.riya-bubble__text { font-size: 14px; line-height: 1.45; }
+.riya-bubble__chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.riya-bubble__chips button { padding: 7px 12px; border-radius: 999px; background: var(--stone); font-size: 13px; transition: background-color .2s var(--ease), color .2s var(--ease); }
+.riya-bubble__chips button:hover, .riya-bubble__chips button:focus-visible { background: var(--ink); color: var(--bg); }
+.riya-bubble__close { position: absolute; top: 6px; right: 6px; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; color: var(--muted); }
+.riya-bubble__close svg { width: 16px; height: 16px; }
+.riya-bubble__close:hover { background: var(--stone); color: var(--ink); }
+/* Phones: a compact bubble above the launcher, clear of the Call / WhatsApp / Book bar */
+@media (max-width: 899px) {
+  .riya-bubble { right: var(--gutter); bottom: 84px; width: min(280px, calc(100vw - 2 * var(--gutter))); padding: 12px 34px 12px 14px; }
+  .has-bar .riya-bubble { bottom: 140px; }
+}
+.mascot.is-waving { transform-origin: 50% 90%; animation: mascot-wave .9s var(--ease) 1; }
+@keyframes mascot-wave { 20% { transform: rotate(-10deg); } 45% { transform: rotate(9deg); } 70% { transform: rotate(-5deg); } 100% { transform: none; } }
 
 .riya {
   position: fixed; right: var(--gutter); bottom: 24px; z-index: 80;
@@ -558,7 +574,7 @@ main picture:hover img, .card:hover img, .card:focus-visible img, .case:hover im
 .mascot.is-bouncing { animation: mascot-bounce .3s var(--ease-out) 1; }
 @keyframes mascot-bounce { 45% { transform: translateY(-4px); } }
 @media (prefers-reduced-motion: reduce) {
-  .mascot__eyes, .is-typing .mascot__eyes, .mascot.is-bouncing, .riya__row, .riya__typing span { animation: none !important; }
+  .mascot__eyes, .is-typing .mascot__eyes, .mascot.is-bouncing, .mascot.is-waving, .riya__row, .riya__typing span { animation: none !important; }
 }
 
 .demo-note {

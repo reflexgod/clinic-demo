@@ -390,7 +390,10 @@ window.CLINIC = {
     webhookUrl: 'https://viraaj19.app.n8n.cloud/webhook/36a7ae43-365d-4cc8-b5bc-33d197384391/chat',
     welcome: 'Hello, I’m Riya. I can answer questions about the clinic or take an appointment request for you.',
     quick: ['Clinic timings', 'Treatments', 'Book a visit', 'Where are you?'],
-    hint: 'Hi, I’m Riya',
+    // Proactive bubble beside the launcher: once per session, after `delay` seconds or `scroll` % of the
+    // page (whichever comes first), never if the chat was already opened. Chips open the chat and send
+    // their text. Add ?riya=open to the URL in demo mode to open the chat straight away.
+    bubble: { text: 'Hi! Looking for an appointment or have a question?', chips: ['Book a visit', 'Ask a question'], delay: 5, scroll: 30 },
     note: 'Riya can check availability and book your appointment instantly.', // small line under the chat input // shown once beside the launcher on desktop, after 6 seconds
     // Mascot colours: theme colour names (bg, ink, stone, accent) or any hex value.
     mascot: { circle: 'ink', body: 'bg', features: 'ink', cheeks: 'stone', headset: 'accent', showHeadset: true },

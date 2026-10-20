@@ -31,7 +31,7 @@ AUDIT_JS = r"""
   for (const el of document.querySelectorAll('body *')) {
     const cs = getComputedStyle(el);
     if (cs.display === 'none') continue;
-    if (!el.closest('.riya, .riya-launcher, .riya-hint') && (parseFloat(cs.borderTopLeftRadius) > 0 || parseFloat(cs.borderBottomRightRadius) > 0)) out.radius.push((el.className || el.tagName).toString().slice(0, 50));
+    if (!el.closest('.riya, .riya-launcher, .riya-bubble') && (parseFloat(cs.borderTopLeftRadius) > 0 || parseFloat(cs.borderBottomRightRadius) > 0)) out.radius.push((el.className || el.tagName).toString().slice(0, 50));
     if (['SOURCE', 'SCRIPT', 'STYLE', 'TEMPLATE'].includes(el.tagName)) continue;
     if (cs.boxShadow !== 'none' || cs.textShadow !== 'none') out.shadow.push((el.className || el.tagName).toString().slice(0, 50));
     if (cs.backgroundImage.includes('gradient') && !el.closest('.hero')) out.shadow.push('gradient: ' + (el.className || el.tagName).toString().slice(0, 50));

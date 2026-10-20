@@ -651,31 +651,87 @@
     launcher.setAttribute('aria-label', `Ask ${riya.name}, the clinic’s receptionist`);
     document.body.append(launcher);
     let chat = null;
-    let hint = null;
-    launcher.addEventListener('click', async () => {
-      if (hint) hint.remove();
+    let bubble = null;
+    const getChat = async () => {
       if (!chat) {
         const { mountRiya } = await import(`${ASSETS}js/riya.js`);
         chat = mountRiya({ clinic: C, launcher, mascot: mascotSVG });
       }
+      return chat;
+    };
+    const remember = (key) => { try { sessionStorage.setItem(key, '1'); } catch (e) { /* storage blocked */ } };
+    const seen = (key) => { try { return Boolean(sessionStorage.getItem(key)); } catch (e) { return true; } };
+    const hideBubble = () => {
+      if (!bubble) return;
+      const el = bubble;
+      bubble = null;
+      el.classList.remove('is-visible');
+      setTimeout(() => el.remove(), reduceMotion ? 0 : 300);
+    };
+    launcher.addEventListener('click', async () => {
+      hideBubble();
+      remember('riya-opened');
+      const c = await getChat();
       if (!launcher.matches('[aria-expanded="true"]')) track('Riya opened');
-      chat.toggle();
+      c.toggle();
     });
-    // Desktop, once per session: "Hi, I'm Riya" beside the launcher after 6s, gone after 6s more
-    try {
-      if (riya.hint && finePointer.matches && !sessionStorage.getItem('riya-hint')) {
-        sessionStorage.setItem('riya-hint', '1');
-        setTimeout(() => {
-          if (chat) return;
-          hint = document.createElement('p');
-          hint.className = 'riya-hint';
-          hint.setAttribute('aria-hidden', 'true');
-          hint.textContent = riya.hint;
-          document.body.append(hint);
-          requestAnimationFrame(() => hint.classList.add('is-visible'));
-          setTimeout(() => { if (hint) hint.classList.remove('is-visible'); }, 6000);
-        }, 6000);
+
+    // Proactive bubble: once per session, after a few seconds or some scrolling, never after the chat was opened
+    const B = riya.bubble;
+    if (B && !seen('riya-bubble') && !seen('riya-opened')) {
+      let timer = 0;
+      const onScroll = () => {
+        const read = (window.scrollY + window.innerHeight) / document.documentElement.scrollHeight * 100;
+        if (read >= (B.scroll || 30)) showBubble();
+      };
+      function showBubble() {
+        clearTimeout(timer);
+        window.removeEventListener('scroll', onScroll);
+        if (chat || bubble || seen('riya-opened') || root.classList.contains('is-locked')) return;
+        remember('riya-bubble');
+        bubble = document.createElement('div');
+        bubble.className = 'riya-bubble';
+        bubble.setAttribute('role', 'dialog');
+        bubble.setAttribute('aria-label', `Message from ${riya.name}`);
+        bubble.innerHTML = `<p class="riya-bubble__text"></p><div class="riya-bubble__chips"></div>
+          <button class="riya-bubble__close" type="button" aria-label="Dismiss">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </button>`;
+        bubble.querySelector('.riya-bubble__text').textContent = B.text;
+        B.chips.forEach((label) => {
+          const chip = document.createElement('button');
+          chip.type = 'button';
+          chip.textContent = label;
+          chip.addEventListener('click', async () => {
+            track('riya_bubble_clicked', { chip: label });
+            hideBubble();
+            remember('riya-opened');
+            const c = await getChat();
+            c.open();
+            track('Riya opened');
+            c.ask(label);
+          });
+          bubble.querySelector('.riya-bubble__chips').append(chip);
+        });
+        bubble.querySelector('.riya-bubble__close').addEventListener('click', hideBubble);
+        document.body.append(bubble);
+        requestAnimationFrame(() => bubble && bubble.classList.add('is-visible'));
+        // The mascot waves once
+        const m = launcher.querySelector('.mascot');
+        if (m && !reduceMotion) {
+          m.classList.add('is-waving');
+          m.addEventListener('animationend', () => m.classList.remove('is-waving'), { once: true });
+        }
+        track('riya_bubble_shown');
       }
-    } catch (e) { /* storage blocked: no hint */ }
+      timer = setTimeout(showBubble, (B.delay || 5) * 1000);
+      window.addEventListener('scroll', onScroll, { passive: true });
+    }
+
+    // Demo: ?riya=open opens the full chat straight away (for showing prospects)
+    if (C.demo && new URLSearchParams(window.location.search).get('riya') === 'open') {
+      remember('riya-opened');
+      getChat().then((c) => { c.open(); track('Riya opened', { via: 'url' }); });
+    }
   }
 })();
