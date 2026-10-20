@@ -474,26 +474,31 @@ main picture:hover img, .card:hover img, .card:focus-visible img, .case:hover im
 @media (min-width: 900px) { .mobile-bar { display: none; } }
 
 /* Riya: the chat widget is friendlier than the page (rounded bubbles and chips), same palette */
+/* Floating UI order: launcher above everything that floats (bubble, demo note, mobile bar). It hides while a
+   modal (menu, case view, quick request, or the chat itself on phones) locks the page. */
 .riya-launcher {
-  position: fixed; right: var(--gutter); bottom: 24px; z-index: 35;
+  position: fixed; right: var(--gutter); bottom: 24px; z-index: 95;
   width: 56px; height: 56px; padding: 0; border-radius: 50%; overflow: hidden;
   transition: transform .45s var(--ease);
 }
 .riya-launcher .mascot { width: 100%; height: 100%; }
 .riya-launcher:hover { transform: translateY(-2px); }
-.riya-launcher[aria-expanded="true"] { visibility: hidden; }
+.riya-launcher[aria-expanded="true"], .is-locked .riya-launcher { visibility: hidden; }
+.riya-launcher.is-loading { cursor: progress; }
+.riya-launcher.is-loading .mascot { opacity: .7; }
 @media (max-width: 899px) {
   .riya-launcher { bottom: 16px; }
   .has-bar .riya-launcher { transform: translateY(-56px); }
 }
 .riya-bubble {
-  position: fixed; right: calc(var(--gutter) + 68px); bottom: 24px; z-index: 36;
+  position: fixed; right: calc(var(--gutter) + 68px); bottom: 24px; z-index: 94;
   width: min(300px, calc(100vw - 2 * var(--gutter) - 68px));
   padding: 14px 36px 14px 16px; border-radius: 14px;
   background: var(--bg); color: var(--ink); border: 1px solid rgba(var(--ink-rgb), .14);
-  opacity: 0; transform: translateY(6px); transition: opacity .3s var(--ease), transform .3s var(--ease);
+  opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(6px);
+  transition: opacity .3s var(--ease), transform .3s var(--ease), visibility 0s .3s;
 }
-.riya-bubble.is-visible { opacity: 1; transform: none; }
+.riya-bubble.is-visible { opacity: 1; visibility: visible; pointer-events: auto; transform: none; transition: opacity .3s var(--ease), transform .3s var(--ease); }
 .riya-bubble__text { font-size: 14px; line-height: 1.45; }
 .riya-bubble__chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .riya-bubble__chips button { padding: 7px 12px; border-radius: 999px; background: var(--stone); font-size: 13px; transition: background-color .2s var(--ease), color .2s var(--ease); }
@@ -516,10 +521,13 @@ main picture:hover img, .card:hover img, .card:focus-visible img, .case:hover im
   display: grid; grid-template-rows: auto 1fr auto auto;
   background: var(--bg); color: var(--ink);
   border: 1px solid rgba(var(--ink-rgb), .2); border-radius: 16px; overflow: hidden;
-  opacity: 0; transform: translateY(12px);
-  transition: opacity .3s var(--ease), transform .3s var(--ease);
+  opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(12px);
+  transition: opacity .3s var(--ease), transform .3s var(--ease), visibility 0s .3s;
 }
-.riya.is-open { opacity: 1; transform: none; }
+/* display: grid above would otherwise override the hidden attribute and leave an invisible layer */
+.riya[hidden] { display: none; }
+.riya.is-open { opacity: 1; visibility: visible; pointer-events: auto; transform: none; transition: opacity .3s var(--ease), transform .3s var(--ease); }
+.riya__loading { padding: 16px; font-size: 14px; color: var(--muted); }
 .riya__head { display: flex; align-items: center; gap: 12px; padding: 14px 14px 14px 16px; background: var(--ink); color: var(--bg); }
 .riya__avatar--head { width: 40px; height: 40px; flex: none; }
 .riya__avatar--head .mascot { width: 40px; height: 40px; box-shadow: none; }
@@ -582,10 +590,11 @@ main picture:hover img, .card:hover img, .card:focus-visible img, .case:hover im
   max-width: 440px; padding: 16px 20px;
   background: var(--ink); color: var(--bg);
   font-size: 15px; line-height: 1.5;
-  opacity: 0; visibility: hidden; transform: translateY(8px);
+  opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(8px);
   transition: opacity .35s var(--ease), transform .35s var(--ease), visibility 0s .35s;
 }
-.demo-note.is-visible { opacity: 1; visibility: visible; transform: none; transition: opacity .35s var(--ease), transform .35s var(--ease); }
+@media (max-width: 899px) { .demo-note { bottom: 84px; right: calc(var(--gutter) + 68px); } .has-bar .demo-note { bottom: 140px; } }
+.demo-note.is-visible { opacity: 1; visibility: visible; pointer-events: auto; transform: none; transition: opacity .35s var(--ease), transform .35s var(--ease); }
 .demo-note strong { display: block; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; margin-bottom: 4px; color: var(--accent); }
 
 /* The one entrance effect: a plain fade with a small rise, once */

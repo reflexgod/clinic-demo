@@ -651,13 +651,34 @@
     launcher.setAttribute('aria-label', `Ask ${riya.name}, the clinic’s receptionist`);
     document.body.append(launcher);
     let chat = null;
+    let chatPromise = null; // one load and one chat window, however many clicks or chips arrive
     let bubble = null;
-    const getChat = async () => {
-      if (!chat) {
-        const { mountRiya } = await import(`${ASSETS}js/riya.js`);
-        chat = mountRiya({ clinic: C, launcher, mascot: mascotSVG });
+    // Shown at once on the first click, then filled by riya.js when it has loaded
+    const shell = () => {
+      const panel = document.createElement('section');
+      panel.className = 'riya';
+      panel.id = 'riya';
+      panel.setAttribute('role', 'dialog');
+      panel.setAttribute('aria-label', riya.name);
+      panel.innerHTML = `<header class="riya__head"><span class="riya__avatar riya__avatar--head">${mascotSVG()}</span>
+        <div class="riya__id"><p class="riya__name"></p></div></header><p class="riya__loading">Connecting…</p>`;
+      panel.querySelector('.riya__name').textContent = riya.name;
+      document.body.append(panel);
+      requestAnimationFrame(() => panel.classList.add('is-open'));
+      return panel;
+    };
+    const getChat = (showShell = false) => {
+      if (!chatPromise) {
+        launcher.classList.add('is-loading');
+        launcher.setAttribute('aria-busy', 'true');
+        const panel = showShell ? shell() : null;
+        if (panel) launcher.setAttribute('aria-expanded', 'true');
+        chatPromise = import(`${ASSETS}js/riya.js`)
+          .then(({ mountRiya }) => { chat = mountRiya({ clinic: C, launcher, mascot: mascotSVG, panel }); return chat; })
+          .catch((err) => { chatPromise = null; if (panel) panel.remove(); launcher.setAttribute('aria-expanded', 'false'); throw err; })
+          .finally(() => { launcher.classList.remove('is-loading'); launcher.removeAttribute('aria-busy'); });
       }
-      return chat;
+      return chatPromise;
     };
     const remember = (key) => { try { sessionStorage.setItem(key, '1'); } catch (e) { /* storage blocked */ } };
     const seen = (key) => { try { return Boolean(sessionStorage.getItem(key)); } catch (e) { return true; } };
@@ -668,12 +689,16 @@
       el.classList.remove('is-visible');
       setTimeout(() => el.remove(), reduceMotion ? 0 : 300);
     };
+    // A single listener. While riya.js loads the shell is already showing, so extra clicks are ignored;
+    // once loaded, the click opens the chat (the launcher is hidden while the chat is open).
     launcher.addEventListener('click', async () => {
       hideBubble();
       remember('riya-opened');
-      const c = await getChat();
-      if (!launcher.matches('[aria-expanded="true"]')) track('Riya opened');
-      c.toggle();
+      if (launcher.classList.contains('is-loading')) return;
+      const first = !chat;
+      const c = await getChat(true);
+      if (first || !c.isOpen()) track('Riya opened');
+      c.open();
     });
 
     // Proactive bubble: once per session, after a few seconds or some scrolling, never after the chat was opened
@@ -706,7 +731,7 @@
             track('riya_bubble_clicked', { chip: label });
             hideBubble();
             remember('riya-opened');
-            const c = await getChat();
+            const c = await getChat(true); // the message is queued until the chat is ready
             c.open();
             track('Riya opened');
             c.ask(label);
@@ -731,7 +756,7 @@
     // Demo: ?riya=open opens the full chat straight away (for showing prospects)
     if (C.demo && new URLSearchParams(window.location.search).get('riya') === 'open') {
       remember('riya-opened');
-      getChat().then((c) => { c.open(); track('Riya opened', { via: 'url' }); });
+      getChat(true).then((c) => { c.open(); track('Riya opened', { via: 'url' }); });
     }
   }
 })();

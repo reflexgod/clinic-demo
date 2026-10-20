@@ -25,7 +25,7 @@ function demoReply(text, C) {
   return 'Thank you. I’ll pass that to the clinic team, who can answer in detail. Is there anything else, such as timings or directions?';
 }
 
-export function mountRiya({ clinic: C, launcher, mascot }) {
+export function mountRiya({ clinic: C, launcher, mascot, panel: shell = null }) {
   const R = C.riya;
   const root = document.documentElement;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -37,12 +37,14 @@ export function mountRiya({ clinic: C, launcher, mascot }) {
     sessionId = (crypto.randomUUID && crypto.randomUUID()) || String(Date.now()) + Math.random().toString(16).slice(2);
     try { sessionStorage.setItem('riya-session', sessionId); } catch (e) { /* storage blocked */ }
   }
-  const panel = document.createElement('section');
-  panel.className = 'riya';
+  const panel = shell || document.createElement('section');
+  const shownAlready = Boolean(shell);
+  panel.className = shownAlready ? 'riya is-open' : 'riya';
   panel.id = 'riya';
   panel.setAttribute('role', 'dialog');
+  panel.removeAttribute('aria-label');
   panel.setAttribute('aria-labelledby', 'riya-title');
-  panel.hidden = true;
+  panel.hidden = !shownAlready;
   panel.innerHTML = `
     <header class="riya__head">
       <span class="riya__avatar riya__avatar--head">${mascot()}</span>
@@ -69,7 +71,7 @@ export function mountRiya({ clinic: C, launcher, mascot }) {
   panel.querySelector('.riya__note').textContent = live
     ? (R.note || `${R.name} is an AI assistant. Appointments are confirmed by the clinic team.`)
     : `Demo: ${R.name} answers from the clinic’s details.`;
-  document.body.append(panel);
+  if (!shownAlready) document.body.append(panel);
 
   const log = panel.querySelector('.riya__log');
   const form = panel.querySelector('.riya__form');
@@ -205,7 +207,10 @@ export function mountRiya({ clinic: C, launcher, mascot }) {
 
   let closeTimer = 0;
   const onKey = (e) => { if (e.key === 'Escape') close(); };
+  let isOpen = false;
   function open() {
+    if (isOpen) return;
+    isOpen = true;
     clearTimeout(closeTimer);
     fit();
     panel.hidden = false;
@@ -218,6 +223,8 @@ export function mountRiya({ clinic: C, launcher, mascot }) {
     document.addEventListener('keydown', onKey);
   }
   function close() {
+    if (!isOpen && !panel.classList.contains('is-open')) return;
+    isOpen = false;
     panel.classList.remove('is-open');
     launcher.setAttribute('aria-expanded', 'false');
     root.classList.remove('is-locked');
@@ -227,5 +234,5 @@ export function mountRiya({ clinic: C, launcher, mascot }) {
   }
   panel.querySelector('.riya__close').addEventListener('click', close);
   launcher.setAttribute('aria-controls', 'riya');
-  return { open, close, ask, toggle: () => (panel.classList.contains('is-open') ? close() : open()) };
+  return { open, close, ask, isOpen: () => isOpen, toggle: () => (isOpen ? close() : open()) };
 }
