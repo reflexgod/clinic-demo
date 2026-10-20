@@ -277,18 +277,9 @@ def case_view(R):
 """
 
 
-def hero(c, R, label, lines, lede, cta_href, cta, image, alt, pos, h1_class="", short=False):
-    i = 0
-    parts = [f'<p class="label hero__label">{mask(e(label), i)}</p>']
-    i += 1
-    title = []
-    for line in lines:
-        title.append(mask(e(line), i))
-        i += 1
-    parts.append(f'<h1 class="hero__title {h1_class}">{"".join(title)}</h1>')
-    parts.append(f'<p class="hero__lede">{mask(e(lede), i)}</p>')
-    i += 1
-    parts.append(f'<p class="hero__cta">{mask(f"<a class=\"link link--light\" href=\"{cta_href}\">{e(cta)}</a>", i)}</p>')
+def hero(c, R, label, lines, lede, cta_href, cta, image, alt, pos, short=False):
+    title = "".join(mask(e(line), i) for i, line in enumerate(lines))
+    after = f'style="--i:{len(lines)}"'
     video = ""
     if c["hero"].get("video") and not short:
         video = f'<video class="hero__video" data-base="{R}{c["hero"]["video"]}" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>'
@@ -298,33 +289,34 @@ def hero(c, R, label, lines, lede, cta_href, cta, image, alt, pos, h1_class="", 
         {picture(image, '100vw', e(alt), R, eager=True, pos=pos, preview=False)}
         {video}
       </div>
-      <div class="hero__content" id="page-title-wrap">
-        {''.join(parts).replace('<h1 class', '<h1 id="page-title" class', 1)}
+      <div class="hero__content">
+        <p class="label hero__label hero__after">{e(label)}</p>
+        <h1 class="hero__title" id="page-title">{title}</h1>
+        <p class="hero__lede hero__after" {after}>{e(lede)}</p>
+        <p class="hero__cta hero__after" {after}><a class="link link--light" href="{cta_href}">{e(cta)}</a></p>
       </div>
     </section>"""
 
 
-def treatment_index(c, R, items, heading_id, label, title):
-    rows, thumbs, previews = [], [], []
-    for n, (idx, t) in enumerate(items):
-        num = f"{idx + 1:02d}"
-        rows.append(f"""
-          <li><a class="index__row" href="{R}treatments/{t['slug']}/" data-preview="{n}">
-            <span class="index__num">{num}</span>
-            <span class="index__thumb">{picture(t['image'], '72px', '', R, pos=t.get('pos'), preview=False)}</span>
-            <span class="index__name">{e(t['name'])}</span>
-            <span class="index__short">{e(t['short'])}</span>
-          </a></li>""")
-        previews.append(picture(t["image"], "(min-width: 900px) 24vw, 1px", "", R, pos=t.get("pos"), cls="index__img", preview=False))
+def treatment_grid(c, R, items, heading_id, label, title, section_id="treatments"):
+    cards = "".join(f"""
+          <li class="fade">
+            <a class="card" href="{R}treatments/{t['slug']}/">
+              <span class="card__media">{picture(t['image'], '(min-width: 900px) 30vw, (min-width: 600px) 45vw, 100vw', e(t['imageAlt']), R, pos=t.get('pos'))}</span>
+              <span class="card__name">{e(t['name'])}</span>
+              <span class="card__line">{e(t['summary'])}</span>
+            </a>
+          </li>""" for t in items)
     return f"""
-    <section class="section index" id="treatments" aria-labelledby="{heading_id}" data-index>
-      <div class="container index__head">
-        <p class="label">{e(label)}</p>
-        <h2 class="h2" id="{heading_id}">{e(title)}</h2>
+    <section class="section treatments" id="{section_id}" aria-labelledby="{heading_id}">
+      <div class="container">
+        <div class="section__head fade">
+          <p class="label">{e(label)}</p>
+          <h2 class="h2" id="{heading_id}">{e(title)}</h2>
+        </div>
+        <ul class="grid3">{cards}
+        </ul>
       </div>
-      <ol class="container index__list">{''.join(rows)}
-      </ol>
-      <div class="index__preview" aria-hidden="true" data-index-preview>{''.join(previews)}</div>
     </section>"""
 
 
@@ -334,9 +326,9 @@ def case_tiles(c, R, indices, featured=False):
         k = c["cases"][i]
         hidden = '<span class="visually-hidden"> (sample case)</span>' if k["sample"] else ""
         tiles.append(f"""
-          <li class="case-item" data-cat="{k['cat']}">
+          <li class="case-item fade" data-cat="{k['cat']}">
             <button class="case" type="button" data-case="{i}">
-              <span class="case__media reveal-img">{picture(k['image'], '(min-width: 900px) 30vw, (min-width: 600px) 45vw, 100vw', '', R, pos='50% 45%')}</span>
+              <span class="case__media">{picture(k['image'], '(min-width: 900px) 30vw, (min-width: 600px) 45vw, 100vw', '', R, pos='50% 45%')}</span>
               <span class="case__name">{e(k['name'])}{hidden}</span>
               <span class="case__meta label">{e(k['meta'])}</span>
             </button>
@@ -364,7 +356,7 @@ def cases_section(c, R, indices, heading_id, label, title, lede, link=None, filt
     return f"""
     <section class="section cases" aria-labelledby="{heading_id}" data-cases-block>
       <div class="container">
-        <div class="section__head">
+        <div class="section__head fade">
           <p class="label">{e(label)}</p>
           <{tag} class="{'h1' if h1 else 'h2'}" id="{heading_id}">{e(title)}</{tag}>
           {f'<p class="lede">{e(lede)}</p>' if lede else ''}
@@ -384,12 +376,12 @@ def compare(c, R):
     return f"""
     <section class="section compare" aria-labelledby="compare-title">
       <div class="container compare__wrap">
-        <div class="section__head">
+        <div class="section__head fade">
           <p class="label">Before &amp; after</p>
           <h2 class="h2" id="compare-title">{e(b['title'])}</h2>
           <p class="lede">{e(b['text'])}</p>
         </div>
-        <div class="ba reveal-img" data-ba>
+        <div class="ba fade" data-ba>
           {picture(b['after'], sizes, 'After: the same smile with simulated whitening', R, pos='50% 50%')}
           <div class="ba__before">{picture(b['before'], sizes, 'Before: the original smile', R, pos='50% 50%')}</div>
           <span class="ba__tag ba__tag--before label" aria-hidden="true">Before</span>
@@ -402,34 +394,23 @@ def compare(c, R):
     </section>"""
 
 
-def story(c, R):
+def first_visit(c, R):
     fv = c["firstVisit"]
-    pics, steps = [], []
-    for n, s in enumerate(fv["steps"]):
-        pics.append(picture(s["image"], "(min-width: 900px) 46vw, 1px", e(s["imageAlt"]), R, pos=s.get("pos"),
-                            cls="story__img" + (" is-active" if n == 0 else "")))
-        steps.append(f"""
-          <li class="story__step" data-story-step="{n}">
-            <div class="story__phone-media reveal-img">{picture(s['image'], '(min-width: 900px) 1px, 100vw', e(s['imageAlt']), R, pos=s.get('pos'))}</div>
-            <p class="story__num">{n + 1:02d}</p>
-            <h3 class="h3">{e(s['title'])}</h3>
-            <p>{e(s['text'])}</p>
-          </li>""")
+    steps = "".join(f"""
+          <li class="fade">
+            <div class="card__media">{picture(st['image'], '(min-width: 900px) 30vw, 100vw', e(st['imageAlt']), R, pos=st.get('pos'))}</div>
+            <h3 class="card__name">{e(st['title'])}</h3>
+            <p class="card__line">{e(st['text'])}</p>
+          </li>""" for st in fv["steps"])
     return f"""
-    <section class="section story" aria-labelledby="story-title" data-story>
-      <div class="container story__grid">
-        <div class="story__media" aria-hidden="false">
-          <div class="story__frame reveal-img">{''.join(pics)}</div>
-          <p class="story__count label" aria-hidden="true"><span data-story-count>01</span> / {len(fv['steps']):02d}</p>
+    <section class="section visit-steps" aria-labelledby="first-visit-title">
+      <div class="container">
+        <div class="section__head fade">
+          <p class="label">{e(fv['label'])}</p>
+          <h2 class="h2" id="first-visit-title">{e(fv['title'])}</h2>
         </div>
-        <div class="story__body">
-          <div class="section__head">
-            <p class="label">{e(fv['label'])}</p>
-            <h2 class="h2" id="story-title">{e(fv['title'])}</h2>
-          </div>
-          <ol class="story__steps">{''.join(steps)}
-          </ol>
-        </div>
+        <ol class="grid3 grid3--steps">{steps}
+        </ol>
       </div>
     </section>"""
 
@@ -439,8 +420,8 @@ def doctor(c, R):
     return f"""
     <section class="section doctor" id="doctor" aria-labelledby="doctor-title">
       <div class="container split">
-        <div class="split__media reveal-img">{picture(d['image'], '(min-width: 900px) 42vw, 100vw', e(d['imageAlt']), R, pos=d.get('pos'))}</div>
-        <div class="split__text">
+        <div class="split__media fade">{picture(d['image'], '(min-width: 900px) 42vw, 100vw', e(d['imageAlt']), R, pos=d.get('pos'))}</div>
+        <div class="split__text fade">
           <p class="label">{e(d['role'])}</p>
           <h2 class="h2" id="doctor-title">{e(d['name'])}</h2>
           <blockquote class="quote-sm"><p>“{e(d['quote'])}”</p></blockquote>
@@ -465,7 +446,7 @@ def reviews(c):
     <section class="section reviews" aria-labelledby="reviews-title" data-reviews>
       <div class="container">
         <h2 class="label" id="reviews-title">{e(r['label'])}</h2>
-        <div class="reviews__stage" aria-roledescription="carousel" aria-labelledby="reviews-title">{slides}
+        <div class="reviews__stage fade" aria-roledescription="carousel" aria-labelledby="reviews-title">{slides}
         </div>
         <div class="reviews__controls">
           <p class="label" aria-hidden="true"><span data-review-count>01</span> / {n:02d}</p>
@@ -485,7 +466,7 @@ def visit(c, R, heading="h2"):
     return f"""
     <section class="section visit" id="visit" aria-labelledby="visit-title">
       <div class="container split split--text-first">
-        <div class="split__text">
+        <div class="split__text fade">
           <p class="label">Visit</p>
           <{heading} class="h2" id="visit-title">{e(a['lines'][0])}</{heading}>
           <address>{'<br>'.join(e(x) for x in a['lines'])}</address>
@@ -498,7 +479,7 @@ def visit(c, R, heading="h2"):
           <p class="visit__access">{e(a['access'])}</p>
           <p><a class="link" href="{R}book/#plan">Coming from out of town? Plan your visit</a></p>
         </div>
-        <div class="map">
+        <div class="map fade">
           <p class="map__landmark label">{e(a.get('landmark') or a['locality'])}</p>
           <button class="map__load" type="button" data-map-src="{e(map_src)}" data-map-title="Map of {e(a['mapQuery'])}">
             <span class="map__place">{e(a['mapQuery'])}</span>
@@ -515,8 +496,8 @@ def planner(c, R):
     return f"""
     <section class="section planner" id="plan" aria-labelledby="planner-title" data-planner>
       <div class="container split">
-        <div class="split__media reveal-img">{picture(p['image'], '(min-width: 900px) 42vw, 100vw', e(p['imageAlt']), R, pos=p.get('pos'))}</div>
-        <div class="split__text planner__body">
+        <div class="split__media fade">{picture(p['image'], '(min-width: 900px) 42vw, 100vw', e(p['imageAlt']), R, pos=p.get('pos'))}</div>
+        <div class="split__text planner__body fade">
           <p class="label">For visiting patients</p>
           <h2 class="h2" id="planner-title">{e(p['title'])}</h2>
           <p class="planner__intro">{e(p['intro'])}</p>
@@ -562,7 +543,7 @@ def cta_band(c, R, text):
     return f"""
     <section class="section band" aria-labelledby="band-title">
       <div class="container">
-        <h2 class="h2" id="band-title">{e(text)}</h2>
+        <h2 class="h2 fade" id="band-title">{e(text)}</h2>
         <p><a class="link" href="{R}book/">{e(c["hero"]["cta"])}</a></p>
       </div>
     </section>"""
@@ -578,18 +559,18 @@ def page_home(c, R):
         f"""
     <section class="section intro" aria-labelledby="intro-title">
       <div class="container intro__grid">
-        <div class="intro__text">
+        <div class="intro__text fade">
           <p class="label" id="intro-title">{e(i['label'])}</p>
           <p class="statement">{e(i['text'])}</p>
           <p><a class="link" href="#doctor">{e(i['link'])}</a></p>
         </div>
-        <div class="intro__media reveal-img">{picture(i['image'], '(min-width: 900px) 30vw, 100vw', e(i['imageAlt']), R, pos=i.get('pos'))}</div>
+        <div class="intro__media fade">{picture(i['image'], '(min-width: 900px) 30vw, 100vw', e(i['imageAlt']), R, pos=i.get('pos'))}</div>
       </div>
     </section>""",
-        treatment_index(c, R, list(enumerate(c["treatments"])), "index-title", "Treatments", "Care for every stage of your smile"),
-        story(c, R),
+        treatment_grid(c, R, c["treatments"], "treatments-title", "Treatments", "Care for the whole family"),
+        first_visit(c, R),
         compare(c, R),
-        cases_section(c, R, featured, "cases-title", "Results", "Results that look like you", "", link=(f"{R}results/", "All results")),
+        cases_section(c, R, featured, "cases-title", "Results", "Results that look natural", "", link=(f"{R}results/", "All results")),
         doctor(c, R),
         reviews(c),
         visit(c, R),
@@ -600,25 +581,25 @@ def page_treatment(c, R, idx):
     t = c["treatments"][idx]
     cases = [n for n, k in enumerate(c["cases"]) if k["cat"] == t["slug"]]
     steps = "".join(f"""
-          <li><p class="steps__num">{n + 1:02d}</p><h3 class="h3">{e(s[0])}</h3><p>{e(s[1])}</p></li>""" for n, s in enumerate(t["steps"]))
+          <li class="fade"><p class="steps__num">{n + 1:02d}</p><h3 class="h3">{e(s[0])}</h3><p>{e(s[1])}</p></li>""" for n, s in enumerate(t["steps"]))
     faq = "".join(f"""
           <div class="faq__item">
             <h3><button type="button" aria-expanded="false" aria-controls="faq-{n}" id="faq-q-{n}">{e(q)}<span class="faq__sign" aria-hidden="true"></span></button></h3>
             <div class="faq__panel" id="faq-{n}" role="region" aria-labelledby="faq-q-{n}"><div><p>{e(a)}</p></div></div>
           </div>""" for n, (q, a) in enumerate(t["faq"]))
-    others = [(n, x) for n, x in enumerate(c["treatments"]) if n != idx]
+    others = [c["treatments"][(idx + k) % len(c["treatments"])] for k in (1, 2, 3)]
     return "".join([
-        hero(c, R, f"Treatment {idx + 1:02d}", [t["name"]], t["summary"], f"{R}book/", c["hero"]["cta"], t["image"], t["imageAlt"], t.get("pos"), short=True),
+        hero(c, R, "Treatments", [t["name"]], t["summary"], f"{R}book/", c["hero"]["cta"], t["image"], t["imageAlt"], t.get("pos"), short=True),
         f"""
     <section class="section" aria-labelledby="about-title">
       <div class="container intro__grid intro__grid--text">
-        <p class="label" id="about-title">About this treatment</p>
-        <p class="statement statement--sm">{e(t['intro'])}</p>
+        <p class="label fade" id="about-title">About this treatment</p>
+        <p class="statement fade">{e(t['intro'])}</p>
       </div>
     </section>
     <section class="section section--stone" aria-labelledby="steps-title">
       <div class="container">
-        <div class="section__head">
+        <div class="section__head fade">
           <p class="label">How it works</p>
           <h2 class="h2" id="steps-title">Step by step</h2>
         </div>
@@ -630,7 +611,7 @@ def page_treatment(c, R, idx):
         f"""
     <section class="section faq" aria-labelledby="faq-title">
       <div class="container split split--text-first">
-        <div class="section__head">
+        <div class="section__head fade">
           <p class="label">Questions</p>
           <h2 class="h2" id="faq-title">Good to know</h2>
         </div>
@@ -639,14 +620,14 @@ def page_treatment(c, R, idx):
       </div>
     </section>""",
         planner(c, R),
-        treatment_index(c, R, others, "others-title", "Other treatments", "Explore more"),
+        treatment_grid(c, R, others, "others-title", "Other treatments", "You may also need", section_id="more"),
         cta_band(c, R, f"Talk it through with {c['doctors'][0]['name']}."),
     ])
 
 
 def page_results(c, R):
     return "".join([
-        cases_section(c, R, list(range(len(c["cases"]))), "page-title", "Results", "Results", "Careful, natural changes that keep a smile in balance with the face.", filters=True, h1=True),
+        cases_section(c, R, list(range(len(c["cases"]))), "page-title", "Results", "Results", "Natural changes, planned around each face.", filters=True, h1=True),
         compare(c, R),
         cta_band(c, R, "Every plan starts with a conversation."),
     ])
@@ -658,8 +639,8 @@ def page_book(c, R):
     def path(key, anchor):
         p = b[key]
         return f"""
-          <article class="path"{f' id="{anchor}"' if anchor else ''} aria-labelledby="path-{key}">
-            <div class="path__media reveal-img">{picture(p['image'], '(min-width: 768px) 45vw, 100vw', e(p['imageAlt']), R, pos=p.get('pos'))}</div>
+          <article class="path fade"{f' id="{anchor}"' if anchor else ''} aria-labelledby="path-{key}">
+            <div class="path__media">{picture(p['image'], '(min-width: 768px) 45vw, 100vw', e(p['imageAlt']), R, pos=p.get('pos'))}</div>
             <p class="label">{e(p['label'])}</p>
             <h2 class="h3" id="path-{key}">{e(p['title'])}</h2>
             <p>{e(p['text'])}</p>
@@ -671,7 +652,7 @@ def page_book(c, R):
     return "".join([f"""
     <section class="section book" aria-labelledby="page-title">
       <div class="container">
-        <div class="section__head">
+        <div class="section__head fade">
           <p class="label">{e(c['name'])}</p>
           <h1 class="h1" id="page-title">{e(b['title'])}</h1>
           <p class="lede">{e(b['lede'])}</p>

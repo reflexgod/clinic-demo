@@ -3,13 +3,13 @@
    Clinic data (hours, planner timings, cases, contact, Riya) comes from
    window.CLINIC, defined in clinic.config.js.
 
-    1. Header over the hero      8. Before & after slider
-    2. Menu                      9. Cases: filter + case view
-    3. Hero video (optional)    10. Reviews
-    4. Image reveals            11. FAQ accordion
-    5. Treatments index         12. Open-now status
-    6. First visit story        13. Plan your visit
-    7. Mobile bar               14. Map, demo mode, Riya
+    1. Header over the hero      7. Before & after slider
+    2. Menu                      8. Cases: filter + case view
+    3. Hero video (optional)     9. Reviews
+    4. Fade-in                  10. FAQ accordion
+    5. Mobile bar               11. Open-now status
+    6. Footer wordmark          12. Plan your visit
+                                13. Map, demo mode, Riya
    ========================================================================== */
 (() => {
   'use strict';
@@ -90,79 +90,26 @@
     else window.addEventListener('load', start, { once: true });
   }
 
-  /* 4. Image reveals: a bottom-to-top wipe with a slight scale settle, once */
-  const reveals = document.querySelectorAll('.reveal-img');
+  /* 4. Fade-in: opacity and a small rise, once, as each block enters the viewport.
+        Blocks entering together are staggered (0, 0.12, 0.24s). */
+  const fades = document.querySelectorAll('.fade');
   if (!reduceMotion) {
-    const watcher = io((entries) => entries.forEach((entry) => {
-      if (!entry.isIntersecting) return;
-      entry.target.classList.add('is-in');
-      watcher.unobserve(entry.target);
-    }), { rootMargin: '0px 0px -12% 0px' });
-    reveals.forEach((el) => watcher.observe(el));
+    const watcher = io((entries) => {
+      entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((x, y) => (x.boundingClientRect.top - y.boundingClientRect.top) || (x.boundingClientRect.left - y.boundingClientRect.left))
+        .forEach((entry, i) => {
+          entry.target.style.setProperty('--delay', `${Math.min(i, 3) * 0.12}s`);
+          entry.target.classList.add('is-in');
+          watcher.unobserve(entry.target);
+        });
+    }, { rootMargin: '0px 0px -8% 0px' });
+    fades.forEach((el) => watcher.observe(el));
   } else {
-    reveals.forEach((el) => el.classList.add('is-in'));
+    fades.forEach((el) => el.classList.add('is-in'));
   }
 
-  /* 5. Treatments index (desktop with a mouse): a preview follows the cursor, kept inside the section */
-  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine) and (min-width: 900px)');
-  document.querySelectorAll('[data-index]').forEach((section) => {
-    const preview = section.querySelector('[data-index-preview]');
-    const imgs = [...preview.children];
-    const rows = [...section.querySelectorAll('[data-preview]')];
-    let x = 0; let y = 0; let tx = 0; let ty = 0; let raf = 0; let shown = false;
-    const size = () => preview.getBoundingClientRect();
-    const place = () => { preview.style.transform = `translate3d(${x}px, ${y}px, 0)`; };
-    const tick = () => {
-      x += (tx - x) * 0.14;
-      y += (ty - y) * 0.14;
-      place();
-      raf = Math.abs(tx - x) + Math.abs(ty - y) > 0.3 ? requestAnimationFrame(tick) : 0;
-    };
-    const aim = (clientX, clientY) => {
-      const box = section.getBoundingClientRect();
-      const p = size();
-      // Offset to the right of the cursor, clamped to the section
-      tx = Math.min(Math.max(clientX - box.left + 32, 0), box.width - p.width);
-      ty = Math.min(Math.max(clientY - box.top - p.height / 2, 0), box.height - p.height);
-      if (!shown || reduceMotion) { x = tx; y = ty; place(); }
-      else if (!raf) raf = requestAnimationFrame(tick);
-    };
-    const show = (row) => {
-      const i = Number(row.dataset.preview);
-      imgs.forEach((img, n) => img.classList.toggle('is-active', n === i));
-      preview.classList.add('is-visible');
-      shown = true;
-    };
-    const hide = () => { preview.classList.remove('is-visible'); shown = false; };
-    rows.forEach((row) => {
-      row.addEventListener('mouseenter', (e) => { if (!finePointer.matches) return; aim(e.clientX, e.clientY); show(row); });
-      row.addEventListener('focus', () => {
-        if (!finePointer.matches) return;
-        const r = row.getBoundingClientRect();
-        aim(r.left + r.width * 0.62, r.top + r.height / 2);
-        show(row);
-      });
-      row.addEventListener('blur', hide);
-    });
-    section.addEventListener('mousemove', (e) => { if (shown) aim(e.clientX, e.clientY); });
-    section.querySelector('.index__list').addEventListener('mouseleave', hide);
-  });
-
-  /* 6. First visit (desktop): the pinned image crossfades to the step in the middle of the screen */
-  document.querySelectorAll('[data-story]').forEach((story) => {
-    const imgs = [...story.querySelectorAll('.story__img')];
-    const count = story.querySelector('[data-story-count]');
-    const steps = [...story.querySelectorAll('[data-story-step]')];
-    const watcher = io((entries) => entries.forEach((entry) => {
-      if (!entry.isIntersecting) return;
-      const i = Number(entry.target.dataset.storyStep);
-      imgs.forEach((img, n) => img.classList.toggle('is-active', n === i));
-      if (count) count.textContent = String(i + 1).padStart(2, '0');
-    }), { rootMargin: '-45% 0px -45% 0px' });
-    steps.forEach((step) => watcher.observe(step));
-  });
-
-  /* 7. Mobile action bar: shown after the hero, hidden over the footer */
+  /* 5. Mobile action bar: shown after the hero, hidden over the footer */
   const bar = document.querySelector('[data-mobile-bar]');
   const footer = document.querySelector('[data-footer]');
   if (bar) {
@@ -179,7 +126,7 @@
     sync();
   }
 
-  /* 7b. Footer wordmark: CSS sizes it from the font's measured width; once the font has
+  /* 6. Footer wordmark: CSS sizes it from the font's measured width; once the font has
          loaded, this trims the last few percent (kerning, optical size) so it spans exactly */
   const wordmark = document.querySelector('[data-wordmark]');
   if (wordmark && document.fonts) {
@@ -194,7 +141,7 @@
     window.addEventListener('resize', () => { cancelAnimationFrame(pending); pending = requestAnimationFrame(fit); });
   }
 
-  /* 8. Before & after: the range input drives the split */
+  /* 7. Before & after: the range input drives the split */
   const bindSlider = (ba) => {
     const range = ba.querySelector('.ba__range');
     const set = () => ba.style.setProperty('--pos', `${range.value}%`);
@@ -203,7 +150,7 @@
   };
   document.querySelectorAll('[data-ba]').forEach(bindSlider);
 
-  /* 9. Cases: treatment filter (results page) and the case view dialog */
+  /* 8. Cases: treatment filter (results page) and the case view dialog */
   const grid = document.querySelector('[data-cases]');
   const view = document.getElementById('case-view');
   const mediaData = document.getElementById('case-media');
@@ -222,8 +169,8 @@
       grid.classList.add('is-fading');
       setTimeout(() => {
         swap();
-        // Tiles shown for the first time skip their wipe; the grid fades back as one
-        items.forEach((item) => item.querySelector('.reveal-img').classList.add('is-in'));
+        // Tiles shown for the first time skip their own fade; the grid fades back as one
+        items.forEach((item) => item.classList.add('is-in'));
         grid.classList.remove('is-fading');
       }, 300);
     }));
@@ -307,7 +254,7 @@
     $('[data-cv-next]').addEventListener('click', () => step(1));
   }
 
-  /* 10. Reviews: one quote at a time, slow crossfade every 7s. Pauses on hover/focus,
+  /* 9. Reviews: one quote at a time, slow crossfade every 7s. Pauses on hover/focus,
          off screen, with the Pause button and with reduced motion. */
   document.querySelectorAll('[data-reviews]').forEach((block) => {
     const slides = [...block.querySelectorAll('.review')];
@@ -343,7 +290,7 @@
     io(([entry]) => { onScreen = entry.isIntersecting; schedule(); }).observe(block);
   });
 
-  /* 11. FAQ accordion */
+  /* 10. FAQ accordion */
   document.querySelectorAll('[data-accordion] [aria-controls]').forEach((trigger) => {
     const panel = document.getElementById(trigger.getAttribute('aria-controls'));
     const item = trigger.closest('.faq__item');
@@ -356,7 +303,7 @@
     });
   });
 
-  /* 12. Live open status, in the clinic's time zone */
+  /* 11. Live open status, in the clinic's time zone */
   const statusEls = document.querySelectorAll('[data-open-status]');
   if (statusEls.length && C.hours) {
     const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -387,7 +334,7 @@
     setInterval(render, 60000);
   }
 
-  /* 13. Plan your visit: one question at a time; nothing stored or sent. The result
+  /* 12. Plan your visit: one question at a time; nothing stored or sent. The result
          writes the plan into a WhatsApp message. Timings come from each treatment's config. */
   document.querySelectorAll('[data-planner]').forEach((planner) => {
     const P = C.planner || {};
@@ -447,7 +394,7 @@
     });
   });
 
-  /* 14a. Map: Google Maps loads only after a click (privacy and speed) */
+  /* 13a. Map: Google Maps loads only after a click (privacy and speed) */
   document.querySelectorAll('[data-map-src]').forEach((button) => button.addEventListener('click', () => {
     const frame = document.createElement('iframe');
     frame.src = button.dataset.mapSrc;
@@ -459,7 +406,7 @@
     frame.focus();
   }));
 
-  /* 14b. Demo mode: call and WhatsApp links explain themselves instead of dialling a placeholder */
+  /* 13b. Demo mode: call and WhatsApp links explain themselves instead of dialling a placeholder */
   if (C.demo) {
     const note = document.createElement('div');
     note.className = 'demo-note';
@@ -482,7 +429,7 @@
     });
   }
 
-  /* 14c. Riya: only a small launcher is drawn; the chat loads on the first click */
+  /* 13c. Riya: only a small launcher is drawn; the chat loads on the first click */
   const riya = C.riya;
   if (riya && riya.enabled) {
     const launcher = document.createElement('button');

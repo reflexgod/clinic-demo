@@ -46,25 +46,21 @@ tools/                                     Build and asset pipeline (Python)
 
 ## Design rules
 
-Warm limestone, deep navy, a secondary stone and one muted sage accent (links and hover only).
-Fraunces for headings in sentence case, Manrope for body text, small tracked uppercase labels.
-No rounded corners, shadows, gradients, decorative lines or icons. Four motions only:
+Photography leads, type stays quiet. Warm limestone, deep navy, a secondary stone and one muted
+sage accent (links and hover only). Fraunces for headings in sentence case: only the hero headline
+is large; section headings are moderate and body text is 17px Manrope. No rounded corners, shadows,
+gradients, decorative lines or icons.
 
-- **Hero:** each headline line slides up from its own mask (1.1s, 0.15s stagger), once.
-- **Images:** a bottom-to-top clip wipe with a 1.05 to 1 scale settle (1.2s), once.
-- **Treatments index:** on desktop, the hovered row shifts and a preview follows the cursor;
-  on phones, rows are links with thumbnails.
-- **Your first visit:** the image stays pinned and crossfades while three steps scroll past (desktop);
-  stacked steps on phones.
-
-All motion is off with `prefers-reduced-motion`. `tools/screens.py` screenshots pages at four widths
-and audits them against these rules (radius, shadows, gradients, off-palette colours, overflow, errors).
+Motion is limited to two things: the hero headline revealing line by line (once), and a plain
+fade-in with a small rise for every other block. Treatment and case photos brighten slightly on
+hover (0.4s). All motion is off with `prefers-reduced-motion`. `tools/screens.py` screenshots pages
+at four widths (`--sections` saves one image per section) and audits them against these rules.
 
 ## Images
 
 Photos live in `assets/img` as `<name>-<width>.{avif,webp,jpg}`; the config refers to them by
 `<name>`. To add your own: `from tools.images import export, grade`, or follow `tools/stock.py`, which
-downloads, grades and exports the demo's Unsplash photos. `tools/sample_ba.py` makes the sample
+downloads, crops, grades and exports the demo's Unsplash photos (Indian patients, dentists and clinic rooms). `tools/sample_ba.py` makes the sample
 before/after pair (a simulated whitening, labelled as such). Credits: `CREDITS.md`.
 
 ## Riya

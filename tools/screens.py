@@ -86,6 +86,7 @@ def main():
     ap.add_argument("--out", default=str(ROOT / "review"))
     ap.add_argument("--states", action="store_true", help="also capture index hover, story, case view and menu")
     ap.add_argument("--only", type=int, help="only this viewport width")
+    ap.add_argument("--sections", action="store_true", help="also save one screenshot per section (and the footer)")
     a = ap.parse_args()
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
@@ -110,6 +111,24 @@ def main():
                 hide = page.add_style_tag(content=".mobile-bar,.riya-launcher,.header{visibility:hidden!important}")
                 stitch(page, out / f"{slug}-{w}.png")
                 hide.evaluate("el => el.remove()")
+                if a.sections:
+                    sec = out / "sections"
+                    sec.mkdir(exist_ok=True)
+                    page.evaluate("window.scrollTo(0, 0)")
+                    page.wait_for_timeout(700)
+                    page.screenshot(path=sec / f"{slug}-{w}-01-top.png")
+                    hide = page.add_style_tag(content=".mobile-bar,.riya-launcher,.header,.skip-link{visibility:hidden!important}")
+                    count = page.evaluate("document.querySelectorAll('main > section, footer').length")
+                    for i in range(count):
+                        if i == 0 and page.locator("[data-hero]").count():
+                            continue
+                        name = page.evaluate(f"(() => {{ const el = document.querySelectorAll('main > section, footer')[{i}]; return (el.getAttribute('aria-labelledby') || el.id || el.className.split(' ').pop()).replace('-title', ''); }})()")
+                        page.evaluate(f"document.querySelectorAll('main > section, footer')[{i}].scrollIntoView()")
+                        page.wait_for_timeout(1300)
+                        top, height = page.evaluate(f"(() => {{ const r = document.querySelectorAll('main > section, footer')[{i}].getBoundingClientRect(); return [r.top + scrollY, r.height]; }})()")
+                        stitch(page, sec / f"{slug}-{w}-{i + 1:02d}-{name}.png", top, height)
+                    hide.evaluate("el => el.remove()")
+                    page.evaluate("window.scrollTo(0, 0)")
                 audit = page.evaluate(AUDIT_JS, pal)
                 audit["errors"] = errors
                 audit["height"] = page.evaluate("document.documentElement.scrollHeight")

@@ -8,9 +8,10 @@
    view, demo mode and Riya. So: edit, rebuild, done.
 
    Plain data only: strings, numbers, true/false, null, lists and objects.
-   Images are base names of files in assets/img (e.g. 'photo-talk' means
-   assets/img/photo-talk-{640,1280,1920}.{avif,webp,jpg}); new photos go
-   through tools/images.py. "pos" is the focal point (object-position).
+   Images are base names of files in assets/img (e.g. 'photo-family' means
+   assets/img/photo-family-{640,1280,1920}.{avif,webp,jpg}); new photos go
+   through tools/stock.py or tools/images.py. "pos" is the focal point
+   (CSS object-position). Keep copy short: one idea per line.
    ========================================================================== */
 window.CLINIC = {
   // Demo mode: call and WhatsApp links show a short note instead of opening anything,
@@ -28,8 +29,8 @@ window.CLINIC = {
 
   name: 'Smile Dental Clinic',
   wordmark: 'Smile Dental Clinic', // text logo in the heading font (header and footer)
-  tagline: 'Calm, careful dentistry in Shivajinagar.',
-  description: 'A calm, modern dental clinic on FC Road, Shivajinagar, Pune. Check-ups, implants, aligners, smile design and root canal treatment, explained clearly and done at your pace.',
+  tagline: 'Your family dentist on FC Road.',
+  description: 'Family dental clinic on FC Road, Shivajinagar, Pune. Every step explained, no unnecessary treatment, and evening appointments until 8 PM, Monday to Saturday.',
 
   theme: {
     colors: {
@@ -41,7 +42,7 @@ window.CLINIC = {
     fonts: {
       // Files live in assets/fonts (tools/fonts.py downloads them). fallback = local font
       // the metrics are matched to, so nothing shifts when the web font arrives.
-      heading: { family: 'Fraunces', file: 'fraunces.woff2', weight: '300 450', fallback: 'Georgia', use: 340 },
+      heading: { family: 'Fraunces', file: 'fraunces.woff2', weight: '300 450', fallback: 'Georgia', use: 360 },
       body: { family: 'Manrope', file: 'manrope.woff2', weight: '400 600', fallback: 'Arial', use: 400 },
     },
   },
@@ -77,10 +78,10 @@ window.CLINIC = {
   doctors: [
     {
       name: 'Dr. Mehta',
-      role: 'Lead dentist',
+      role: 'Your dentist',
       credentials: 'BDS, MDS (Prosthodontics) · Sample profile',
-      quote: 'Good dentistry should feel unhurried. I would rather explain twice than rush once.',
-      bio: 'Dr. Mehta plans every treatment around the person in the chair: their bite, their face and how much time they want to spend with us.',
+      quote: 'I would rather explain twice than rush once.',
+      bio: 'Dr. Mehta sees every patient personally, from a child’s first check-up to a full set of implants, and shows you the X-ray before suggesting anything.',
       image: 'photo-mirror-tool',
       imageAlt: 'A dental mirror and explorer resting in soft light',
       pos: '40% 50%',
@@ -88,147 +89,140 @@ window.CLINIC = {
   ],
 
   hero: {
-    label: 'Dental clinic · Shivajinagar, Pune',
-    lines: ['Calm, careful', 'dentistry, close', 'to home.'], // each line reveals from its own mask
-    lede: 'Check-ups to complete smiles, explained clearly and done at your pace.',
+    label: 'Dental clinic · FC Road, Pune',
+    lines: ['Your family dentist', 'on FC Road.'], // each line reveals from its own mask
+    lede: 'Every step explained. No treatment you don’t need. Evening appointments till 8 PM.',
     cta: 'Book a visit',
-    image: 'photo-interior',
-    imageAlt: 'A bright treatment room with a white dental chair and a wooden floor',
-    pos: '55% 50%',
-    video: null, // optional base path, e.g. 'assets/video/hero-' + 720/1080 + '.mp4'
+    image: 'photo-clinic-room',
+    imageAlt: 'A calm consulting room with a sage-green wall, a desk and a treatment chair',
+    pos: '50% 55%',
+    video: null, // optional base path; site.js adds 720.mp4 or 1080.mp4
   },
 
   intro: {
     label: 'The clinic',
-    text: 'A neighbourhood clinic for precise, unhurried dentistry. We listen first, explain everything, and never recommend treatment you do not need.',
+    text: 'Check-ups for children and parents, fillings, root canals, implants and aligners, under one roof, a short walk from Fergusson College.',
     link: 'Meet Dr. Mehta',
-    image: 'photo-waiting-reader',
-    imageAlt: 'A patient reading in a quiet, light-filled waiting area',
-    pos: '50% 60%',
+    image: 'photo-family',
+    imageAlt: 'A mother and her young daughter laughing together on a sofa',
+    pos: '50% 50%',
   },
 
-  // Order here is the order of the treatments index (01, 02, ...). Each gets its own page.
+  // Treatments grid on the homepage, in this order. Each also gets its own page.
   treatments: [
     {
       slug: 'check-ups-and-hygiene',
-      name: 'Check-ups & hygiene',
-      short: 'Six-monthly care',
-      summary: 'A thorough examination and a gentle clean, so small problems stay small.',
-      image: 'photo-toothbrushes',
-      imageAlt: 'Bamboo toothbrushes in a glass jar beside eucalyptus leaves',
-      pos: '35% 50%',
-      intro: 'Most dental problems are easier, quicker and kinder to treat when they are found early. A regular check-up gives us time to notice the small things and to keep your gums healthy.',
+      name: 'Check-ups & cleaning',
+      summary: 'Every six months, for the whole family.',
+      image: 'photo-checkup-child',
+      imageAlt: 'A dentist gently checking a young boy’s teeth in a bright clinic',
+      pos: '50% 40%',
+      intro: 'Most problems are quicker and kinder to treat when they are found early. A check-up and a gentle clean keep small things small.',
       steps: [
-        ['Examination', 'Teeth, gums, bite and soft tissues, with X-rays only when they are needed.'],
-        ['Professional clean', 'Scaling and polishing to remove what brushing cannot reach.'],
-        ['Your next steps', 'Clear advice for home care, and any treatment explained before it is booked.'],
+        ['Check-up', 'Teeth, gums and bite, with X-rays only when needed.'],
+        ['Cleaning', 'Scaling and polishing for what brushing can’t reach.'],
+        ['Advice', 'Simple home care, and any treatment explained first.'],
       ],
       faq: [
-        ['How often should I come?', 'Most people do well with a visit every six months. We will suggest what suits your teeth and gums.'],
-        ['Does a clean hurt?', 'For most people it feels like pressure and vibration, not pain. Tell us if anything is sensitive and we will adjust.'],
+        ['How often should I come?', 'Every six months suits most people. We will tell you what suits you.'],
+        ['Is it suitable for children?', 'Yes. Children’s visits are short, gentle and unhurried.'],
       ],
-      planner: { days: 'A single visit of about an hour.' },
+      planner: { days: 'One visit of about 45 minutes.' },
     },
     {
       slug: 'dental-implants',
       name: 'Dental implants',
-      short: 'Replacing missing teeth',
-      summary: 'A fixed replacement for a missing tooth, planned around the tooth you will see.',
+      summary: 'A fixed tooth to replace a missing one.',
       image: 'photo-implant',
       imageAlt: 'A gloved hand holding a dental implant with its crown',
       pos: '50% 40%',
-      intro: 'An implant is a small titanium post that takes the place of a missing tooth’s root. Once it has settled into the jaw, a crown, bridge or denture is fixed on top. We plan the visible tooth first, then place the implant to support it.',
+      intro: 'An implant is a small titanium post that replaces a missing tooth’s root. Once it has settled, a crown is fixed on top that looks and works like your own tooth.',
       steps: [
-        ['Consultation', 'An examination, the scans needed to plan safely, and a clear explanation of your options.'],
-        ['Placement', 'The implant is placed under local anaesthetic, at a pace that keeps you comfortable.'],
-        ['Healing', 'The bone bonds with the implant over the following weeks. We review how it is settling.'],
-        ['Your new tooth', 'A crown made to match your smile, fitted with your bite checked carefully.'],
+        ['Consultation', 'An examination and the scans needed to plan safely.'],
+        ['Placement', 'The implant is placed under local anaesthetic.'],
+        ['Healing', 'A few weeks for the bone to bond with the implant.'],
+        ['Your new tooth', 'A crown matched to your smile, with your bite checked.'],
       ],
       faq: [
-        ['Am I suitable for implants?', 'It depends on your gums, your bone and your general health. A consultation is the only way to know.'],
-        ['How long does it take?', 'Usually a few months from placement to the final tooth, with healing time in between. You will get a personal timeline.'],
-        ['How long do implants last?', 'With good home care and regular reviews, implants can last for many years.'],
+        ['Am I suitable?', 'It depends on your gums, bone and general health. A consultation tells us.'],
+        ['How long does it take?', 'Usually a few months from placement to the final tooth.'],
       ],
       planner: { days: 'Sample: typically 2 visits, about 3–5 days each, a few months apart.' },
     },
     {
       slug: 'clear-aligners',
       name: 'Clear aligners',
-      short: 'Straightening, discreetly',
-      summary: 'Nearly invisible trays that move teeth gradually, without fixed braces.',
-      image: 'photo-aligner',
-      imageAlt: 'A woman fitting a clear aligner over her upper teeth',
-      pos: '50% 40%',
-      intro: 'Clear aligners are thin, removable trays, each one moving your teeth a little further. Treatment is planned digitally, so you can see the expected result before you begin.',
+      summary: 'Straighter teeth without metal braces.',
+      image: 'photo-smile-man',
+      imageAlt: 'A young man with an easy, natural smile',
+      pos: '50% 45%',
+      intro: 'Clear aligners are thin, removable trays that move your teeth a little at a time. You see the planned result before you begin.',
       steps: [
-        ['Assessment', 'We check whether aligners suit your teeth and bite, and take a digital scan.'],
-        ['Your plan', 'A step-by-step digital plan showing how your teeth will move.'],
-        ['Wearing aligners', 'A new set every week or two, with short reviews along the way.'],
-        ['Keeping it', 'Retainers keep your teeth in their new position.'],
+        ['Assessment', 'We check whether aligners suit your teeth and bite.'],
+        ['Your plan', 'A digital plan showing how your teeth will move.'],
+        ['Wearing them', 'A new set every week or two, with short reviews.'],
+        ['Keeping it', 'Retainers hold your teeth in their new place.'],
       ],
       faq: [
-        ['How long will I wear them?', 'Many cases take six to eighteen months. Your plan will show your own timeline.'],
-        ['Can I take them out?', 'Yes, to eat, drink anything other than water, and clean your teeth. They work best worn about 22 hours a day.'],
+        ['How long will it take?', 'Often six to eighteen months. Your plan shows your timeline.'],
+        ['Can I take them out?', 'Yes, to eat and to brush. They work best worn most of the day.'],
       ],
-      planner: { days: 'Sample: 1 visit of about 2 days to start, then remote reviews.' },
+      planner: { days: 'Sample: 1 visit of about 2 days to start, then reviews by video.' },
     },
     {
       slug: 'smile-design-and-veneers',
       name: 'Smile design & veneers',
-      short: 'Shape, shade and balance',
-      summary: 'Small, considered changes to shape and shade, previewed before anything is done.',
-      image: 'stock-natural-smile',
-      imageAlt: 'Close-up of a natural smile',
-      pos: '50% 40%',
-      intro: 'Smile design starts with your face, not your teeth. We plan proportions and shade together, preview the result with you, and then choose the gentlest way to get there: whitening, bonding or thin porcelain veneers.',
+      summary: 'Small changes to shape and shade, previewed first.',
+      image: 'photo-smile-woman',
+      imageAlt: 'A young woman smiling, her chin resting on her hands',
+      pos: '50% 50%',
+      intro: 'We plan shape and shade around your face, show you a preview, then choose the gentlest way there: whitening, bonding or thin veneers.',
       steps: [
-        ['Conversation', 'What you would like to change, and what you would like to keep.'],
-        ['Preview', 'A mock-up of the planned smile, so you can see it before any treatment.'],
-        ['Treatment', 'Veneers or bonding made to the agreed design, fitted over one or two visits.'],
+        ['Conversation', 'What you would like to change, and what to keep.'],
+        ['Preview', 'A mock-up of the new smile before any treatment.'],
+        ['Treatment', 'Bonding or veneers made to the agreed design.'],
       ],
       faq: [
-        ['Will it look natural?', 'That is the aim. We plan shade and shape to suit your face, never a single template.'],
-        ['Do veneers damage teeth?', 'Thin veneers need very little preparation, and sometimes none. We will explain exactly what is involved for you.'],
+        ['Will it look natural?', 'That is the aim. Shade and shape are planned to suit your face.'],
+        ['Do veneers harm teeth?', 'Thin veneers need very little preparation, sometimes none.'],
       ],
       planner: { days: 'Sample: typically 2 visits, about 7–10 days in all.' },
     },
     {
       slug: 'root-canal-treatment',
       name: 'Root canal treatment',
-      short: 'Saving a painful tooth',
-      summary: 'Relief from toothache, and a way to keep a tooth that might otherwise be lost.',
-      image: 'photo-instruments',
-      imageAlt: 'A gloved hand holding a set of dental examination instruments',
-      pos: '50% 35%',
-      intro: 'When the nerve inside a tooth is inflamed or infected, root canal treatment removes it, cleans the canals and seals the tooth. It is done under local anaesthetic and is usually far more comfortable than people expect.',
+      summary: 'Ends the toothache and saves the tooth.',
+      image: 'photo-treatment',
+      imageAlt: 'A dentist in blue scrubs treating a patient reclining in the chair',
+      pos: '68% 50%',
+      intro: 'When the nerve inside a tooth is infected, root canal treatment cleans and seals it. It is done under local anaesthetic and feels much like a long filling.',
       steps: [
-        ['Diagnosis', 'An examination and an X-ray to confirm the cause of the pain.'],
-        ['Treatment', 'The canals are cleaned and sealed, in one or two visits.'],
-        ['Protection', 'A filling or crown to protect the tooth for the long term.'],
+        ['Diagnosis', 'An examination and an X-ray to find the cause.'],
+        ['Treatment', 'The canals are cleaned and sealed in one or two visits.'],
+        ['Protection', 'A filling or crown to protect the tooth.'],
       ],
       faq: [
-        ['Is it painful?', 'The treatment itself is done with local anaesthetic. Most people say it feels like a long filling.'],
-        ['Will I need a crown?', 'Back teeth often do, to protect them from cracking. We will tell you what your tooth needs.'],
+        ['Does it hurt?', 'It is done with local anaesthetic. Most people feel pressure, not pain.'],
+        ['Will I need a crown?', 'Back teeth often do. We will tell you what yours needs.'],
       ],
       planner: { days: 'Sample: 1–2 visits over about 3 days.' },
     },
     {
       slug: 'crowns-and-bridges',
       name: 'Crowns & bridges',
-      short: 'Restoring strength',
-      summary: 'Strong, natural-looking restorations for worn, broken or missing teeth.',
+      summary: 'Strength back for worn or broken teeth.',
       image: 'photo-model',
       imageAlt: 'A dentist explaining a restoration on a model of the teeth',
       pos: '45% 50%',
-      intro: 'A crown covers and protects a weakened tooth; a bridge replaces a missing tooth by joining to the teeth either side. Both are made to match the shade and shape of your own teeth.',
+      intro: 'A crown covers and protects a weak tooth. A bridge replaces a missing tooth by joining the teeth on either side. Both are matched to your own teeth.',
       steps: [
-        ['Preparation', 'The tooth is shaped and a precise impression or scan is taken.'],
-        ['Temporary', 'A temporary crown protects the tooth while yours is made.'],
-        ['Fitting', 'The final crown or bridge is fitted and your bite is checked.'],
+        ['Preparation', 'The tooth is shaped and a precise scan is taken.'],
+        ['Temporary', 'A temporary crown protects it while yours is made.'],
+        ['Fitting', 'The final crown is fitted and your bite is checked.'],
       ],
       faq: [
         ['How long does a crown take?', 'Usually two visits, about a week apart.'],
-        ['Crown, bridge or implant?', 'Each has its place. We will explain the trade-offs for your situation.'],
+        ['Crown, bridge or implant?', 'Each has its place. We explain the trade-offs for you.'],
       ],
       planner: { days: 'Sample: typically 2 visits, about 5–7 days apart.' },
     },
@@ -236,66 +230,66 @@ window.CLINIC = {
 
   firstVisit: {
     label: 'Your first visit',
-    title: 'What to expect, step by step',
+    title: 'What happens when you come in',
     steps: [
-      { title: 'We listen', text: 'Fifteen unhurried minutes to talk about what brings you in, what worries you and what you would like.', image: 'photo-talk', imageAlt: 'A dentist and a patient talking, both seated, in a treatment room', pos: '55% 50%' },
-      { title: 'We look, and explain', text: 'A careful examination, with X-rays only if they are needed. Everything we see is shown and explained on screen.', image: 'photo-screen', imageAlt: 'A dentist showing a patient an X-ray on a screen', pos: '60% 40%' },
-      { title: 'You decide', text: 'You leave with clear options, honest costs and time to think. Nothing is booked until you are ready.', image: 'photo-mirror-smile', imageAlt: 'A smiling patient looking at her reflection in a hand mirror', pos: '50% 35%' },
+      { title: 'We listen', text: 'Ten minutes to hear what’s bothering you, before anyone looks in your mouth.', image: 'photo-consult-desk', imageAlt: 'A clinician seated at her desk in a bright consulting room', pos: '60% 50%' },
+      { title: 'We show you', text: 'A careful check-up, with X-rays only if needed. You see what we see.', image: 'photo-dentist-patient', imageAlt: 'A dentist adjusting the light over a patient in the chair', pos: '65% 40%' },
+      { title: 'You decide', text: 'Clear options and costs in writing. Nothing is booked until you’re ready.', image: 'photo-older-man', imageAlt: 'A smiling older man in a white shirt, relaxed in a sunlit café', pos: '55% 35%' },
     ],
   },
 
   beforeAfter: {
-    title: 'See the difference',
+    title: 'Before and after',
     text: 'Drag to compare.',
     before: 'sample-ba-before',
     after: 'sample-ba-after',
     note: 'Sample · simulated whitening on a stock photo, for demonstration only',
   },
 
-  // Sample cases (stock photos). Set sample: false only for real, consented cases.
+  // Sample cases (stock portraits). Set sample: false only for real, consented cases.
   // cat links a case to a treatment slug (filters and treatment pages).
   cases: [
     {
-      name: 'Dental implants', cat: 'dental-implants', meta: 'Sample case · 3 visits · 4 months', sample: true, image: 'stock-case-1', face: 'stock-case-1-face',
-      concern: 'A missing tooth had made eating on one side uncomfortable.',
-      plan: 'A single implant, with a crown designed to match the neighbouring teeth.',
-      result: 'A tooth that looks, feels and works like the patient’s own.',
-      note: 'The aim is a tooth nobody notices, including the patient.',
+      name: 'Dental implants', cat: 'dental-implants', meta: 'Sample case · 3 visits · 4 months', sample: true, image: 'case-1', face: null,
+      concern: 'A missing back tooth made chewing on one side difficult.',
+      plan: 'One implant, with a crown matched to the teeth beside it.',
+      result: 'Comfortable chewing on both sides again.',
+      note: 'The best implant is the one nobody notices.',
     },
     {
-      name: 'Smile design & veneers', cat: 'smile-design-and-veneers', meta: 'Sample case · 3 visits · 3 weeks', sample: true, image: 'stock-case-2', face: 'stock-case-2-face',
-      concern: 'Uneven, worn front teeth the patient had become self-conscious about.',
-      plan: 'A smile designed around the face and previewed first, then thin porcelain veneers.',
-      result: 'A brighter, balanced smile that still looks entirely natural.',
-      note: 'Less is usually more. The best veneers look like the patient on a good day.',
+      name: 'Smile design & veneers', cat: 'smile-design-and-veneers', meta: 'Sample case · 3 visits · 3 weeks', sample: true, image: 'case-2', face: null,
+      concern: 'Uneven front teeth she had become shy about.',
+      plan: 'A previewed smile design, then four thin veneers.',
+      result: 'An even, natural smile she is happy to show.',
+      note: 'Less is usually more.',
     },
     {
-      name: 'Clear aligners', cat: 'clear-aligners', meta: 'Sample case · 8 visits · 9 months', sample: true, image: 'stock-case-4', face: 'stock-case-4-face',
-      concern: 'Crowded lower teeth that were difficult to keep clean.',
-      plan: 'Clear aligners planned digitally, with short reviews along the way.',
-      result: 'Straighter teeth and easier daily care, without fixed braces.',
-      note: 'Straight teeth matter, but a healthy, even bite matters more.',
+      name: 'Clear aligners', cat: 'clear-aligners', meta: 'Sample case · 8 visits · 9 months', sample: true, image: 'case-3', face: null,
+      concern: 'Crowded lower teeth that were hard to clean.',
+      plan: 'Clear aligners, with short reviews every six weeks.',
+      result: 'Straighter teeth and easier brushing, no braces.',
+      note: 'A healthy bite matters as much as straight teeth.',
     },
     {
-      name: 'Crowns & bridges', cat: 'crowns-and-bridges', meta: 'Sample case · 2 visits · 2 weeks', sample: true, image: 'stock-case-3', face: null,
-      concern: 'Worn back teeth were making chewing uncomfortable.',
-      plan: 'Two ceramic crowns, with the bite rebalanced at the same time.',
-      result: 'Comfortable chewing and teeth protected for the long term.',
-      note: 'We restore the bite first; appearance follows from it.',
+      name: 'Crowns & bridges', cat: 'crowns-and-bridges', meta: 'Sample case · 2 visits · 2 weeks', sample: true, image: 'case-4', face: null,
+      concern: 'Worn back teeth made eating uncomfortable.',
+      plan: 'Two ceramic crowns, with the bite rebalanced.',
+      result: 'Comfortable chewing, teeth protected for years.',
+      note: 'We fix the bite first; the look follows.',
     },
     {
-      name: 'Dental implants', cat: 'dental-implants', meta: 'Sample case · 4 visits · 5 months', sample: true, image: 'stock-case-5', face: null,
-      concern: 'A front tooth that could not be saved after an old injury.',
-      plan: 'The extraction and the implant planned together, with a temporary tooth in between.',
-      result: 'A front tooth that matches its neighbours in shape and shade.',
-      note: 'Front teeth are judged in millimetres. Planning is everything.',
+      name: 'Dental implants', cat: 'dental-implants', meta: 'Sample case · 4 visits · 5 months', sample: true, image: 'case-5', face: null,
+      concern: 'A front tooth lost after a fall.',
+      plan: 'An implant, with a temporary tooth while it healed.',
+      result: 'A front tooth that matches its neighbours.',
+      note: 'Front teeth are judged in millimetres.',
     },
     {
-      name: 'Smile design & veneers', cat: 'smile-design-and-veneers', meta: 'Sample case · 2 visits · 2 weeks', sample: true, image: 'stock-case-6', face: 'stock-case-6-face',
+      name: 'Smile design & veneers', cat: 'smile-design-and-veneers', meta: 'Sample case · 2 visits · 2 weeks', sample: true, image: 'case-6', face: null,
       concern: 'Small gaps and chipped edges on the front teeth.',
-      plan: 'Composite bonding to close the gaps and repair the edges, without drilling.',
-      result: 'An even smile line, finished in two short visits.',
-      note: 'The gentlest option that achieves the result is usually the right one.',
+      plan: 'Tooth-coloured bonding, with no drilling.',
+      result: 'An even smile line in two short visits.',
+      note: 'The gentlest option is usually the right one.',
     },
   ],
   featuredCases: 3, // how many cases the homepage shows
@@ -303,9 +297,9 @@ window.CLINIC = {
   reviews: {
     label: 'Sample reviews',
     items: [
-      { quote: 'They explained every step before starting. I have never felt so calm in a dentist’s chair.', source: 'Sample review' },
-      { quote: 'Gentle, precise and on time. The clinic is quiet and spotless.', source: 'Sample review' },
-      { quote: 'No pressure, no upselling. Just clear advice and very good work.', source: 'Sample review' },
+      { quote: 'They showed me the X-ray and explained it before doing anything.', source: 'Sample review' },
+      { quote: 'An evening slot after work, on time, and no waiting.', source: 'Sample review' },
+      { quote: 'My son actually looks forward to his check-ups now.', source: 'Sample review' },
     ],
   },
 
@@ -313,9 +307,9 @@ window.CLINIC = {
   // each treatment (planner.days). Nothing is stored; the result opens WhatsApp.
   planner: {
     title: 'Plan your visit',
-    intro: 'Coming from out of town? Three quick questions, and we will show how treatment could fit around your trip.',
+    intro: 'Coming from out of town? Three quick questions, and we’ll show how treatment could fit your trip.',
     city: 'Pune',
-    unsure: 'We will recommend the right treatment and timeline after a short video consultation.',
+    unsure: 'We will suggest the right treatment and timeline after a short video call.',
     minDays: 1,
     maxDays: 30,
     startDays: 5,
@@ -327,9 +321,9 @@ window.CLINIC = {
 
   book: {
     title: 'Book a visit',
-    lede: 'Choose a visit to the clinic, or a video consultation from wherever you are.',
-    inPerson: { label: 'At the clinic', title: 'In-person visit', text: 'A full examination and a clear explanation of your options, with time for every question.', image: 'photo-interior', imageAlt: 'A bright treatment room with a white dental chair', pos: '55% 50%', message: 'Hello Smile Dental Clinic, I’d like to book an in-person visit.' },
-    virtual: { label: 'From anywhere', title: 'Video consultation', text: 'Talk through your concerns, share any X-rays you already have, and plan treatment before you travel.', image: 'stock-virtual-call', imageAlt: 'A man talking to a clinician on a video call from home', pos: '40% 50%', message: 'Hello Smile Dental Clinic, I’d like to book a video consultation.' },
+    lede: 'Come to the clinic, or start with a video call from home.',
+    inPerson: { label: 'At the clinic', title: 'In-person visit', text: 'A full check-up and a clear explanation of your options.', image: 'photo-clinic-chairs', imageAlt: 'A bright treatment room with dental chairs and tall windows', pos: '45% 50%', message: 'Hello Smile Dental Clinic, I’d like to book an in-person visit.' },
+    virtual: { label: 'From home', title: 'Video consultation', text: 'Talk it through and share any X-rays before you travel.', image: 'photo-video-call', imageAlt: 'A woman on a video call at a table by a window', pos: '70% 50%', message: 'Hello Smile Dental Clinic, I’d like to book a video consultation.' },
   },
 
   // Riya, the AI receptionist. With a webhookUrl (n8n Chat Trigger) she answers live;

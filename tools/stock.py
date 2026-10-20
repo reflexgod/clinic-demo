@@ -19,24 +19,51 @@ ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "src-assets" / "stock"
 
 PICKS = {
-    "photo-interior": "https://unsplash.com/photos/a-dental-room-with-a-desk-and-chairs-Fdku_oMrDvk",
-    "photo-talk": "https://unsplash.com/photos/dentist-talking-to-patient-in-a-modern-dental-office-Bg81yWKZlMg",
-    "photo-screen": "https://unsplash.com/photos/man-in-white-dress-shirt-holding-black-pen--m-4tYmtLlI",
-    "photo-mirror-smile": "https://unsplash.com/photos/young-woman-smiling-holding-a-mirror-looking-at-her-reflection-Vx71zsOqtSU",
+    # Clinic settings and people (Indian patients, dentists and clinic rooms)
+    "photo-clinic-room": "https://unsplash.com/photos/modern-office-with-desk-chairs-and-computer-bdeLBIPYUrE",
+    "photo-clinic-chairs": "https://unsplash.com/photos/red-and-white-leather-padded-chair-I-kDEBUMAaQ",
+    "photo-family": "https://unsplash.com/photos/woman-and-child-laughing-on-sofa-a-_1PPjnbUg",
+    "photo-checkup-child": "https://unsplash.com/photos/a-young-boy-getting-his-teeth-checked-by-a-dentist-etw3NOpgKDI",
+    "photo-smile-man": "https://unsplash.com/photos/man-in-red-crew-neck-shirt-ARBQCe2GrjQ",
+    "photo-smile-woman": "https://unsplash.com/photos/woman-in-gray-long-sleeve-shirt-smiling-6luXq9r2z1s",
+    "photo-treatment": "https://unsplash.com/photos/a-woman-getting-her-teeth-checked-by-a-dentist-IX5vs6sjSFo",
+    "photo-consult-desk": "https://unsplash.com/photos/a-woman-sits-at-a-desk-with-a-laptop-JFD4nvAn0X4",
+    "photo-dentist-patient": "https://unsplash.com/photos/a-woman-getting-her-teeth-brushed-by-a-dentist-7n50uixCBV8",
+    "photo-older-man": "https://unsplash.com/photos/a-smiling-man-in-a-white-polo-shirt-XGs1bSZ9P6s",
+    "photo-video-call": "https://unsplash.com/photos/a-woman-sitting-at-a-table-with-a-laptop-4NRgZmVb7bc",
+    # Sample case portraits
+    "case-1": "https://unsplash.com/photos/a-smiling-man-in-a-red-shirt-with-glasses-ONZ84gi7xr0",
+    "case-2": "https://unsplash.com/photos/a-woman-with-an-umbrella-smiling-for-the-camera-Sa0YZta_Fb8",
+    "case-3": "https://unsplash.com/photos/smiling-man-with-dark-stubble-AJ66j-TX_Ks",
+    "case-4": "https://unsplash.com/photos/a-smiling-man-wearing-glasses-and-a-maroon-kurta-Oj_PWTQo6b8",
+    "case-5": "https://unsplash.com/photos/woman-in-red-and-yellow-shirt-RgDVFbXllVA",
+    "case-6": "https://unsplash.com/photos/woman-in-red-patterned-sweater-MHg6J6m_eqI",
+    # Objects and hands only
     "photo-implant": "https://unsplash.com/photos/gloved-hand-holding-a-dental-implant-and-crown-eHwRLpfHSKY",
-    "photo-aligner": "https://unsplash.com/photos/woman-adjusting-clear-dental-aligners-on-teeth-uTUsnv_UCSQ",
-    "photo-instruments": "https://unsplash.com/photos/gloved-hand-holding-dental-examination-tools-98eodnv1abo",
     "photo-model": "https://unsplash.com/photos/dentist-demonstrating-dental-implant-on-model-LOgBp87WzIk",
-    "photo-toothbrushes": "https://unsplash.com/photos/bamboo-toothbrushes-in-a-glass-jar-with-eucalyptus-leaves-VCC5Vc0X2F8",
     "photo-mirror-tool": "https://unsplash.com/photos/dental-mirror-and-explorer-tool-ux18C551ghI",
-    "photo-waiting-reader": "https://unsplash.com/photos/woman-sitting-in-a-modern-waiting-room-reading-jH05wxjmAWE",
 }
-# Earlier stock still used by the demo (already exported; credited by page URL)
+# 4:5 crops for portraits: (centre x, centre y, width) as fractions of the photo
+CROPS = {
+    "case-1": (.47, .36, .78), "case-2": (.42, .42, .78), "case-3": (.5, .42, .95),
+    "case-4": (.5, .38, .78), "case-5": (.5, .5, .72), "case-6": (.4, .3, .62),
+    "photo-smile-woman": (.5, .45, 1.0),
+}
+
+
+def crop45(im, cx, cy, wf):
+    w = round(im.width * wf)
+    h = min(round(w * 1.25), im.height)
+    w = round(h / 1.25)
+    x = min(max(round(cx * im.width - w / 2), 0), im.width - w)
+    y = min(max(round(cy * im.height - h / 2), 0), im.height - h)
+    return im.crop((x, y, x + w, y + h))
+
+
+# Earlier stock still used by the demo (already exported)
 KEPT = {
     "stock-arrival": "Planner (suitcase by a window)",
-    "stock-virtual-call": "Book page: virtual consultation",
-    "stock-natural-smile": "Treatment: smile design",
-    "stock-case-*": "Sample cases",
+    "sample-ba-*": "Before/after sample (tools/sample_ba.py, from an Unsplash smile close-up)",
 }
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36"
 
@@ -59,7 +86,10 @@ def main():
             if not src.exists():
                 raw = re.sub(r"\?.*$", "", info["img"]) + "?w=2400&q=85&fm=jpg"
                 src.write_bytes(urllib.request.urlopen(urllib.request.Request(raw, headers={"User-Agent": UA}), timeout=90).read())
-            files, size = export(grade(Image.open(src)), name)
+            im = Image.open(src).convert("RGB")
+            if name in CROPS:
+                im = crop45(im, *CROPS[name])
+            files, size = export(grade(im), name)
             rows.append(f"| `assets/img/{name}-*` | {info['author']} ({info['profile']}) | {url} |")
             print(f"{name:<22} {size[0]}x{size[1]}  {info['author']:<24} 1280: {files.get(1280)}")
         b.close()
