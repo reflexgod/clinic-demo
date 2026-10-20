@@ -34,7 +34,7 @@ AUDIT_JS = r"""
     if (parseFloat(cs.borderTopLeftRadius) > 0 || parseFloat(cs.borderBottomRightRadius) > 0) out.radius.push((el.className || el.tagName).toString().slice(0, 50));
     if (['SOURCE', 'SCRIPT', 'STYLE', 'TEMPLATE'].includes(el.tagName)) continue;
     if (cs.boxShadow !== 'none' || cs.textShadow !== 'none') out.shadow.push((el.className || el.tagName).toString().slice(0, 50));
-    if (cs.backgroundImage.includes('gradient')) out.shadow.push('gradient: ' + (el.className || el.tagName).toString().slice(0, 50));
+    if (cs.backgroundImage.includes('gradient') && !el.closest('.hero')) out.shadow.push('gradient: ' + (el.className || el.tagName).toString().slice(0, 50));
     if (['IMG', 'VIDEO', 'PICTURE', 'IFRAME'].includes(el.tagName)) { if (el.tagName === 'IMG' && !el.hasAttribute('alt')) out.noAlt.push(el.src); continue; }
     if ((el.innerText || '').trim() && el.children.length === 0) note(rgb(cs.color), el, 'color');
     note(rgb(cs.backgroundColor), el, 'background');

@@ -151,7 +151,11 @@
             <div><dt class="label">WhatsApp</dt><dd><a href="https://wa.me/910000000000?text=Hello%20Smile%20Dental%20Clinic%2C%20I%E2%80%99d%20like%20to%20book%20a%20visit.">Message the clinic</a></dd></div>
           </dl>
           <p class="visit__access">Ground floor · Step-free entrance · Street parking nearby</p>
-          <p><a class="link" href="../book/#plan">Coming from out of town? Plan your visit</a></p>
+          <div class="emergency" data-emergency>
+            <p class="emergency__title">Toothache or a broken tooth?</p>
+            <p data-emergency-open><a class="link" href="tel:+910000000000">Call now</a> Call now and we will try to see you today.</p>
+            <p data-emergency-closed hidden><a class="link" href="https://wa.me/910000000000?text=Hello%2C%20I%20have%20a%20dental%20emergency%20%28toothache%20or%20broken%20tooth%29.%20Please%20call%20me%20back.">WhatsApp request</a> Send a WhatsApp request; we reply first thing when we open.</p>
+          </div>
         </div>
         <div class="map fade">
           <p class="map__landmark label">Near Fergusson College</p>
@@ -200,7 +204,25 @@
 
   <nav class="mobile-bar" aria-label="Quick actions" data-mobile-bar inert>
     <a href="tel:+910000000000">Call</a>
-    <a href="../book/">Book a visit</a>
+    <a href="https://wa.me/910000000000?text=Hello%20Smile%20Dental%20Clinic%2C%20I%E2%80%99d%20like%20to%20book%20a%20visit.">WhatsApp</a>
+    <a href="../book/" data-quick-request>Book</a>
   </nav>
+
+  <div class="quick" id="quick-request" role="dialog" aria-modal="true" aria-labelledby="quick-title" inert data-quick>
+    <div class="quick__panel">
+      <div class="quick__top">
+        <p class="label" data-quick-count>1 / 3</p>
+        <button type="button" data-quick-close>Close</button>
+      </div>
+      <h2 class="h3" id="quick-title" tabindex="-1" data-quick-q>What is the visit for?</h2>
+      <div class="quick__options" data-quick-options></div>
+      <div class="quick__done" data-quick-done hidden>
+        <p class="quick__summary" data-quick-summary></p>
+        <a class="link" href="#" data-quick-send>Send on WhatsApp</a>
+        <p class="proof">No pressure: nothing is booked until you decide</p>
+        <button class="quick__restart" type="button" data-quick-restart>Start again</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

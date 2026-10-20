@@ -120,6 +120,7 @@ export function mountRiya({ clinic: C, launcher }) {
     send.disabled = true;
     quick.hidden = true; // suggestions only before the conversation starts
     addMessage(text, 'user');
+    if (window.clinicTrack) window.clinicTrack('Riya request sent');
     const typing = document.createElement('p');
     typing.className = 'riya__typing';
     typing.textContent = `${R.name} is typing…`;

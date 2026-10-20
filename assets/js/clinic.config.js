@@ -82,23 +82,70 @@ window.CLINIC = {
     summary: ['Monday to Saturday, 10 AM to 8 PM', 'Sunday closed'],
   },
 
+  // Review rating shown under the hero CTA. sample: true adds "Sample" in the demo.
+  rating: { value: '4.9', count: '200+', source: 'Google', sample: true },
+
+  // Small proof lines placed under primary calls to action
+  proof: {
+    evenings: 'Evening slots till 8 PM, Monday to Saturday',
+    explained: 'Every step explained before we start',
+    noPressure: 'No pressure: nothing is booked until you decide',
+  },
+
+  // "What it costs" on treatment pages. Leave a field empty ('') to hide it.
+  pricing: {
+    consultation: '₹500 consultation',
+    estimate: 'A clear written estimate before any treatment',
+    emi: 'EMI options available',
+    note: 'Sample prices for the demo.',
+  },
+
+  // 3-tap quick request (treatment, day, time), sent as a prefilled WhatsApp message
+  quickRequest: {
+    days: 6, // how many open days ahead to offer
+    times: [['Morning', '10:00', '13:00'], ['Afternoon', '13:00', '17:00'], ['Evening', '17:00', '20:00']],
+  },
+
+  // Emergency line in the visit section: a call during opening hours, a WhatsApp request outside them
+  emergency: {
+    title: 'Toothache or a broken tooth?',
+    open: 'Call now and we will try to see you today.',
+    closed: 'Send a WhatsApp request; we reply first thing when we open.',
+  },
+
+  // Privacy-friendly analytics (for example Plausible: src 'https://plausible.io/js/script.js',
+  // domain 'yourclinic.in'). Empty in the demo: events are logged to the console instead.
+  analytics: { src: '', domain: '' },
+
+  // Sample numbers for the hidden /stats page (how the clinic would see the results)
+  stats: {
+    month: 'This month (sample)',
+    items: [['Calls from the site', 46], ['WhatsApp chats started', 118], ['Quick requests sent', 37], ['Riya conversations', 64], ['Riya appointment requests', 19], ['Visit plans sent', 8]],
+    scroll: [['Read a quarter of the page', '82%'], ['Half', '61%'], ['Three quarters', '44%'], ['All of it', '29%']],
+  },
+
   doctors: [
     {
       name: 'Dr. Mehta',
       role: 'Your dentist',
-      credentials: 'BDS, MDS (Prosthodontics) · Sample profile',
+      credentials: 'BDS, MDS (Prosthodontics)',
+      years: '12 years in practice',
+      memberships: 'Member, Indian Dental Association',
+      sample: true, // labels portrait, credentials and video as samples in the demo
       quote: 'I would rather explain twice than rush once.',
-      bio: 'Dr. Mehta sees every patient personally, from a child’s first check-up to a full set of implants, and shows you the X-ray before suggesting anything.',
-      image: 'photo-mirror-tool',
-      imageAlt: 'A dental mirror and explorer resting in soft light',
-      pos: '40% 50%',
+      image: 'photo-doctor',
+      imageAlt: 'Sample portrait: a dentist in a white shirt with a stethoscope',
+      pos: '50% 30%',
+      video: null, // a 20-second "Meet the doctor" MP4; null shows the poster only
+      videoPoster: 'photo-consult-desk',
     },
   ],
 
   hero: {
-    label: 'Dental clinic · FC Road, Pune',
-    lines: ['Your family dentist', 'on FC Road.'], // each line reveals from its own mask
+    label: 'FC Road, Shivajinagar, Pune', // the open-now status is shown beside it
+    lines: ['Family & cosmetic dentist', 'on FC Road, Pune.'], // each line reveals from its own mask
     lede: 'Every step explained. No treatment you don’t need. Evening appointments till 8 PM.',
+    secondary: 'WhatsApp us',
     cta: 'Book a visit',
     image: 'photo-clinic-room',
     imageAlt: 'A calm consulting room with a sage-green wall, a desk and a treatment chair',
@@ -107,8 +154,20 @@ window.CLINIC = {
   },
 
   intro: {
+    title: 'A neighbourhood clinic that explains first',
+    text: 'For children, parents and grandparents, a short walk from Fergusson College.',
+  },
+
+  // Three photos edge to edge under the intro
+  pillars: [
+    { title: 'Everything explained', text: 'You see your X-rays and hear your options before anything is done.', image: 'photo-dentist-patient', imageAlt: 'A dentist adjusting the light over a patient in the chair', pos: '65% 40%' },
+    { title: 'No unnecessary treatment', text: 'Only what your teeth need, with a written estimate first.', image: 'photo-older-man', imageAlt: 'A smiling older man in a white shirt, relaxed in a sunlit café', pos: '55% 35%' },
+    { title: 'Evenings till 8 PM', text: 'Monday to Saturday, so a visit fits around work and school.', image: 'photo-family', imageAlt: 'A mother and her young daughter laughing together on a sofa', pos: '55% 50%' },
+  ],
+
+  clinic: {
     label: 'The clinic',
-    text: 'Check-ups for children and parents, fillings, root canals, implants and aligners, under one roof, a short walk from Fergusson College.',
+    text: 'Check-ups, fillings, root canals, implants and aligners, under one roof on FC Road.',
     link: 'Meet Dr. Mehta',
     image: 'photo-clinic-chairs',
     imageAlt: 'A bright treatment room with dental chairs and tall windows',
@@ -119,6 +178,7 @@ window.CLINIC = {
   treatments: [
     {
       slug: 'check-ups-and-hygiene',
+      cost: 'Sample: ₹800–1,500 for a check-up and clean.',
       name: 'Check-ups & cleaning',
       summary: 'Every six months, for the whole family.',
       image: 'photo-checkup-child',
@@ -138,6 +198,7 @@ window.CLINIC = {
     },
     {
       slug: 'dental-implants',
+      cost: 'Sample: from ₹30,000 per implant, crown included.',
       name: 'Dental implants',
       summary: 'A fixed tooth to replace a missing one.',
       image: 'photo-implant',
@@ -158,6 +219,7 @@ window.CLINIC = {
     },
     {
       slug: 'clear-aligners',
+      cost: 'Sample: from ₹60,000 for a full course.',
       name: 'Clear aligners',
       summary: 'Straighter teeth without metal braces.',
       image: 'photo-smile-man',
@@ -178,6 +240,7 @@ window.CLINIC = {
     },
     {
       slug: 'smile-design-and-veneers',
+      cost: 'Sample: from ₹8,000 per tooth.',
       name: 'Smile design & veneers',
       summary: 'Small changes to shape and shade, previewed first.',
       image: 'photo-smile-woman',
@@ -197,6 +260,7 @@ window.CLINIC = {
     },
     {
       slug: 'root-canal-treatment',
+      cost: 'Sample: ₹4,000–8,000, plus a crown if needed.',
       name: 'Root canal treatment',
       summary: 'Ends the toothache and saves the tooth.',
       image: 'photo-treatment',
@@ -216,6 +280,7 @@ window.CLINIC = {
     },
     {
       slug: 'crowns-and-bridges',
+      cost: 'Sample: from ₹6,000 per crown.',
       name: 'Crowns & bridges',
       summary: 'Strength back for worn or broken teeth.',
       image: 'photo-model',
@@ -237,21 +302,21 @@ window.CLINIC = {
 
   firstVisit: {
     label: 'Your first visit',
-    title: 'What happens when you come in',
+    title: 'Nervous about the dentist?',
+    text: 'Gentle care, every step explained, and you can ask to pause at any time.',
     steps: [
       { title: 'We listen', text: 'Ten minutes to hear what’s bothering you, before anyone looks in your mouth.', image: 'photo-consult-desk', imageAlt: 'A clinician seated at her desk in a bright consulting room', pos: '60% 50%' },
-      { title: 'We show you', text: 'A careful check-up, with X-rays only if needed. You see what we see.', image: 'photo-dentist-patient', imageAlt: 'A dentist adjusting the light over a patient in the chair', pos: '65% 40%' },
-      { title: 'You decide', text: 'Clear options and costs in writing. Nothing is booked until you’re ready.', image: 'photo-older-man', imageAlt: 'A smiling older man in a white shirt, relaxed in a sunlit café', pos: '55% 35%' },
+      { title: 'We show you', text: 'A gentle check-up, with X-rays only if needed. You see what we see.', image: 'photo-checkup-child', imageAlt: 'A dentist gently checking a young boy’s teeth in a bright clinic', pos: '50% 40%' },
+      { title: 'You decide', text: 'Clear options and costs in writing. Nothing is booked until you’re ready.', image: 'photo-smile-woman', imageAlt: 'A young woman smiling, her chin resting on her hands', pos: '50% 50%' },
     ],
   },
 
   // One sample photo until the clinic supplies a real, consented before/after pair.
   beforeAfter: {
-    title: 'Before and after',
-    image: 'sample-ba-before',
-    imageAlt: 'Sample photo: a close-up of a smile',
-    pos: '50% 50%',
-    note: 'Before/after comparison will appear here with a real, consented case.',
+    title: 'Results that look natural',
+    before: 'sample-ba-before',
+    after: 'sample-ba-after',
+    note: 'Sample: simulated whitening on a stock photo. Real, consented cases replace it at launch.',
   },
 
   // Sample cases (stock portraits). Set sample: false only for real, consented cases.
@@ -303,11 +368,20 @@ window.CLINIC = {
   featuredCases: 3, // how many cases the homepage shows
 
   reviews: {
-    label: 'Sample reviews',
+    title: 'What patients say',
+    googleUrl: 'https://www.google.com/maps', // the clinic's Google reviews link
+    sample: true,
     items: [
-      { quote: 'They showed me the X-ray and explained it before doing anything.', source: 'Sample review' },
-      { quote: 'An evening slot after work, on time, and no waiting.', source: 'Sample review' },
-      { quote: 'My son actually looks forward to his check-ups now.', source: 'Sample review' },
+      { name: 'Priya', treatment: 'Root canal', text: 'They showed me the X-ray and explained it before doing anything. Painless.' },
+      { name: 'Rahul', treatment: 'Check-up', text: 'An evening slot after work, on time, and no waiting.' },
+      { name: 'Sneha', treatment: 'Clear aligners', text: 'Honest advice. They told me what I didn’t need, too.' },
+      { name: 'Anil', treatment: 'Implant', text: 'Calm clinic, careful work. My new tooth feels like my own.' },
+      { name: 'Meera', treatment: 'Children’s check-up', text: 'My son actually looks forward to his check-ups now.' },
+      { name: 'Vikram', treatment: 'Crown', text: 'Clear estimate up front and no surprises on the bill.' },
+    ],
+    photos: [
+      { image: 'photo-clinic-room', imageAlt: 'The consulting room with a sage-green wall', pos: '50% 50%' },
+      { image: 'photo-video-call', imageAlt: 'A patient on a video consultation at home', pos: '70% 50%' },
     ],
   },
 

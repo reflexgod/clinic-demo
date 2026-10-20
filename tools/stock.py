@@ -31,6 +31,7 @@ PICKS = {
     "photo-dentist-patient": "https://unsplash.com/photos/a-woman-getting-her-teeth-brushed-by-a-dentist-7n50uixCBV8",
     "photo-older-man": "https://unsplash.com/photos/a-smiling-man-in-a-white-polo-shirt-XGs1bSZ9P6s",
     "photo-video-call": "https://unsplash.com/photos/a-woman-sitting-at-a-table-with-a-laptop-4NRgZmVb7bc",
+    "photo-doctor": "https://unsplash.com/photos/a-man-with-a-stethoscope-standing-with-his-arms-crossed-3HIroMoyre8",
     # Sample case portraits
     "case-1": "https://unsplash.com/photos/a-smiling-man-in-a-red-shirt-with-glasses-ONZ84gi7xr0",
     "case-2": "https://unsplash.com/photos/a-woman-with-an-umbrella-smiling-for-the-camera-Sa0YZta_Fb8",
@@ -48,6 +49,7 @@ CROPS = {
     "case-1": (.47, .36, .78), "case-2": (.42, .42, .78), "case-3": (.5, .42, .95),
     "case-4": (.5, .38, .78), "case-5": (.5, .5, .72), "case-6": (.4, .3, .62),
     "photo-smile-woman": (.5, .45, 1.0),
+    "photo-doctor": (.5, .4, .78),
 }
 
 

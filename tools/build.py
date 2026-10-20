@@ -108,6 +108,18 @@ def tel(c):
     return f"tel:{c['contact']['phoneTel']}"
 
 
+def rating_line(c):
+    r = c.get("rating")
+    if not r:
+        return ""
+    sample = " · Sample" if (r.get("sample") and c["demo"]) else ""
+    return f"★ {e(r['value'])} on {e(r['source'])} · {e(r['count'])} reviews{sample}"
+
+
+def proof(text, cls=""):
+    return f'<p class="proof{(" " + cls) if cls else ""}">{text}</p>' if text else ""
+
+
 def head(c, R, page, theme):
     site = c["site"]
     url = site["url"] + page["path"]
@@ -244,8 +256,26 @@ def footer(c, R):
 
   <nav class="mobile-bar" aria-label="Quick actions" data-mobile-bar inert>
     <a href="{tel(c)}">Call</a>
-    <a href="{R}book/">{e(c['hero']['cta'])}</a>
+    <a href="{wa_link(c, c['contact']['whatsappGreeting'])}">WhatsApp</a>
+    <a href="{R}book/" data-quick-request>Book</a>
   </nav>
+
+  <div class="quick" id="quick-request" role="dialog" aria-modal="true" aria-labelledby="quick-title" inert data-quick>
+    <div class="quick__panel">
+      <div class="quick__top">
+        <p class="label" data-quick-count>1 / 3</p>
+        <button type="button" data-quick-close>Close</button>
+      </div>
+      <h2 class="h3" id="quick-title" tabindex="-1" data-quick-q>What is the visit for?</h2>
+      <div class="quick__options" data-quick-options></div>
+      <div class="quick__done" data-quick-done hidden>
+        <p class="quick__summary" data-quick-summary></p>
+        <a class="link" href="#" data-quick-send>Send on WhatsApp</a>
+        <p class="proof">{e(c['proof']['noPressure'])}</p>
+        <button class="quick__restart" type="button" data-quick-restart>Start again</button>
+      </div>
+    </div>
+  </div>
 """
 
 
@@ -283,6 +313,9 @@ def hero(c, R, label, lines, lede, cta_href, cta, image, alt, pos, short=False):
     video = ""
     if c["hero"].get("video") and not short:
         video = f'<video class="hero__video" data-base="{R}{c["hero"]["video"]}" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>'
+    status = "" if short else ' <span class="hero__status" data-open-status></span>'
+    second = "" if short else f'<a class="link link--light" href="{wa_link(c, c["contact"]["whatsappGreeting"])}">{e(c["hero"]["secondary"])}</a>'
+    trust = "" if short else proof(rating_line(c), "proof--light hero__after")
     return f"""
     <section class="hero{' hero--short' if short else ''}" data-hero aria-labelledby="page-title">
       <div class="hero__media">
@@ -290,11 +323,119 @@ def hero(c, R, label, lines, lede, cta_href, cta, image, alt, pos, short=False):
         {video}
       </div>
       <div class="hero__content">
-        <p class="label hero__label hero__after">{e(label)}</p>
+        <p class="label hero__label hero__after">{e(label)}{status}</p>
         <h1 class="hero__title" id="page-title">{title}</h1>
         <p class="hero__lede hero__after" {after}>{e(lede)}</p>
-        <p class="hero__cta hero__after" {after}><a class="link link--light" href="{cta_href}">{e(cta)}</a></p>
+        <p class="hero__cta hero__after" {after}><a class="link link--light" href="{cta_href}" data-quick-request>{e(cta)}</a>{second}</p>
+        {trust.replace('hero__after"', 'hero__after" ' + after, 1) if trust else ''}
       </div>
+    </section>"""
+
+
+def intro(c):
+    i = c["intro"]
+    return f"""
+    <section class="intro-band" aria-labelledby="intro-title">
+      <div class="container intro-band__inner fade">
+        <h2 class="h2" id="intro-title">{e(i['title'])}</h2>
+        <p class="lede">{e(i['text'])}</p>
+      </div>
+    </section>"""
+
+
+def pillars(c, R):
+    items = "".join(f"""
+        <li class="pillar fade">
+          <div class="pillar__media">{picture(x['image'], '(min-width: 900px) 34vw, 100vw', e(x['imageAlt']), R, pos=x.get('pos'))}</div>
+          <div class="pillar__text">
+            <h3 class="card__name">{e(x['title'])}</h3>
+            <p class="card__line">{e(x['text'])}</p>
+          </div>
+        </li>""" for x in c["pillars"])
+    return f"""
+    <section class="pillars" aria-label="Why patients choose us">
+      <ul class="pillars__row">{items}
+      </ul>
+    </section>"""
+
+
+def clinic(c, R):
+    k = c["clinic"]
+    return f"""
+    <section class="clinic" aria-labelledby="clinic-title">
+      {picture(k['image'], '100vw', e(k['imageAlt']), R, pos=k.get('pos'))}
+      <div class="clinic__content fade">
+        <p class="label" id="clinic-title">{e(k['label'])}</p>
+        <p class="clinic__text">{e(k['text'])}</p>
+        <a class="link link--light" href="#doctor">{e(k['link'])}</a>
+      </div>
+    </section>"""
+
+
+def treatment_index(c, R):
+    rows, previews = [], []
+    for n, t in enumerate(c["treatments"]):
+        rows.append(f"""
+          <li><a class="index__row" href="{R}treatments/{t['slug']}/" data-preview="{n}">
+            <span class="index__thumb">{picture(t['image'], '72px', '', R, pos=t.get('pos'), preview=False)}</span>
+            <span class="index__name">{e(t['name'])}</span>
+            <span class="index__line">{e(t['summary'])}</span>
+          </a></li>""")
+        previews.append(picture(t["image"], "(min-width: 900px) 220px, 1px", "", R, pos=t.get("pos"), cls="index__img", preview=False))
+    return f"""
+    <section class="section section--stone index" id="treatments" aria-labelledby="treatments-title" data-index>
+      <div class="container">
+        <div class="section__head fade">
+          <p class="label">Treatments</p>
+          <h2 class="h2" id="treatments-title">Care for the whole family</h2>
+        </div>
+        <ul class="index__list">{''.join(rows)}
+        </ul>
+      </div>
+      <div class="index__preview" aria-hidden="true" data-index-preview>{''.join(previews)}</div>
+    </section>"""
+
+
+def slider(c, R, sizes="(min-width: 700px) 640px, 100vw"):
+    b = c["beforeAfter"]
+    return f"""<figure class="ba-wrap">
+          <div class="ba" data-ba>
+            {picture(b['after'], sizes, 'Sample after: the same smile with simulated whitening', R)}
+            <div class="ba__before">{picture(b['before'], sizes, 'Sample before: the original smile', R)}</div>
+            <span class="ba__tag ba__tag--before label" aria-hidden="true">Before</span>
+            <span class="ba__tag ba__tag--after label" aria-hidden="true">After</span>
+            <input class="ba__range" type="range" min="0" max="100" value="50" aria-label="Compare before and after (sample)">
+            <span class="ba__handle" aria-hidden="true"><span class="ba__grip"></span></span>
+          </div>
+          <figcaption class="compare__note">{e(b['note'])}</figcaption>
+        </figure>"""
+
+
+def results_home(c, R):
+    tiles = "".join(f"""
+            <li class="case-item" data-cat="{c['cases'][i]['cat']}">
+              <button class="case" type="button" data-case="{i}">
+                <span class="case__media">{picture(c['cases'][i]['image'], '(min-width: 900px) 22vw, 50vw', '', R, pos='50% 40%')}</span>
+                <span class="case__name">{e(c['cases'][i]['name'])}<span class="visually-hidden"> (sample case)</span></span>
+              </button>
+            </li>""" for i in range(min(4, len(c["cases"]))))
+    return f"""
+    <section class="section results-home" aria-labelledby="results-title" data-cases-block>
+      <div class="container">
+        <div class="section__head fade">
+          <p class="label">Results · Sample</p>
+          <h2 class="h2" id="results-title">{e(c['beforeAfter']['title'])}</h2>
+        </div>
+        <div class="results-home__grid">
+          <div class="fade">{slider(c, R)}</div>
+          <div class="fade">
+            <ul class="smiles" data-cases>{tiles}
+            </ul>
+            <p class="section__more"><a class="link" href="{R}results/">See all results</a></p>
+          </div>
+        </div>
+      </div>
+      <script type="application/json" id="case-media">{media_map(c)}</script>
     </section>"""
 
 
@@ -371,83 +512,92 @@ def cases_section(c, R, indices, heading_id, label, title, lede, link=None, filt
 
 
 def compare(c, R, stone=False):
-    b = c["beforeAfter"]
     return f"""
     <section class="section compare{' section--stone' if stone else ''}" aria-labelledby="compare-title">
       <div class="container compare__wrap">
         <div class="section__head fade">
-          <p class="label">Before &amp; after</p>
-          <h2 class="h2" id="compare-title">{e(b['title'])}</h2>
+          <p class="label">Before &amp; after · Sample</p>
+          <h2 class="h2" id="compare-title">Drag to compare</h2>
         </div>
-        <figure class="compare__frame fade">
-          {picture(b['image'], '(min-width: 700px) 640px, 100vw', e(b['imageAlt']), R, pos=b.get('pos'))}
-          <figcaption class="compare__note">{e(b['note'])}</figcaption>
-        </figure>
+        <div class="fade">{slider(c, R)}</div>
       </div>
     </section>"""
 
 
 def first_visit(c, R):
-    """Edge-to-edge row of three photos, no gaps, a short title and two lines under each."""
+    """Three edge-to-edge photo tiles; number, title and two lines sit on the photo."""
     fv = c["firstVisit"]
-    steps = "".join(f"""
-        <li class="pillar fade">
-          <div class="pillar__media">{picture(st['image'], '(min-width: 900px) 34vw, 100vw', e(st['imageAlt']), R, pos=st.get('pos'))}</div>
-          <div class="pillar__text">
+    tiles = "".join(f"""
+        <li class="tile fade">
+          {picture(st['image'], '(min-width: 900px) 34vw, 100vw', e(st['imageAlt']), R, pos=st.get('pos'))}
+          <div class="tile__text">
+            <p class="label">{n + 1:02d}</p>
             <h3 class="card__name">{e(st['title'])}</h3>
-            <p class="card__line">{e(st['text'])}</p>
+            <p>{e(st['text'])}</p>
           </div>
-        </li>""" for st in fv["steps"])
+        </li>""" for n, st in enumerate(fv["steps"]))
     return f"""
-    <section class="section pillars" aria-labelledby="first-visit-title">
-      <div class="container section__head fade">
+    <section class="journey" aria-labelledby="first-visit-title">
+      <div class="container section__head journey__head fade">
         <p class="label">{e(fv['label'])}</p>
         <h2 class="h2" id="first-visit-title">{e(fv['title'])}</h2>
+        <p class="lede">{e(fv['text'])}</p>
       </div>
-      <ol class="pillars__row">{steps}
+      <ol class="tiles">{tiles}
       </ol>
     </section>"""
 
 
 def doctor(c, R):
     d = c["doctors"][0]
+    sample = d.get("sample") and c["demo"]
+    tag = '<span class="sample-tag">Sample</span>' if sample else ""
+    video = (f'<video class="doctor__video" src="{R}{d["video"]}" controls preload="none" poster="{R}assets/img/{d["videoPoster"]}-640.jpg"></video>' if d.get("video") else
+             f'<div class="doctor__video-slot">{picture(d["videoPoster"], "320px", "", R, pos="60% 50%", preview=False)}'
+             f'<p class="label">Meet the doctor · 20s video{" · Sample slot" if sample else ""}</p></div>')
+    creds = " · ".join(e(x) for x in (d["credentials"], d.get("years"), d.get("memberships")) if x)
     return f"""
-    <section class="section doctor" id="doctor" aria-labelledby="doctor-title">
+    <section class="section section--stone doctor" id="doctor" aria-labelledby="doctor-title">
       <div class="container split">
-        <div class="split__media fade">{picture(d['image'], '(min-width: 900px) 42vw, 100vw', e(d['imageAlt']), R, pos=d.get('pos'))}</div>
+        <div class="split__media doctor__portrait fade">{picture(d['image'], '(min-width: 900px) 40vw, 100vw', e(d['imageAlt']), R, pos=d.get('pos'))}{tag}</div>
         <div class="split__text fade">
           <p class="label">{e(d['role'])}</p>
           <h2 class="h2" id="doctor-title">{e(d['name'])}</h2>
           <blockquote class="quote-sm"><p>“{e(d['quote'])}”</p></blockquote>
-          <p>{e(d['bio'])}</p>
-          <p class="doctor__creds label">{e(d['credentials'])}</p>
+          <p class="doctor__creds">{creds}{' (sample)' if sample else ''}</p>
+          {video}
+          <p><a class="link" href="{R}book/" data-quick-request>Book a visit with {e(d['name'])}</a></p>
+          {proof(e(c['proof']['noPressure']))}
         </div>
       </div>
     </section>"""
 
 
-def reviews(c):
+def reviews(c, R):
     r = c["reviews"]
-    n = len(r["items"])
-    slides = "".join(f"""
-            <div class="review{' is-active' if i == 0 else ''}" role="group" aria-roledescription="slide" aria-label="{i + 1} of {n}"{'' if i == 0 else ' aria-hidden="true"'}>
-              <figure>
-                <blockquote><p>“{e(x['quote'])}”</p></blockquote>
-                <figcaption class="label">{e(x['source'])}</figcaption>
-              </figure>
-            </div>""" for i, x in enumerate(r["items"]))
+    sample = r.get("sample") and c["demo"]
+    cards = [f"""
+          <li class="review-card fade">
+            <p class="review-card__stars" aria-label="5 out of 5 stars">★★★★★</p>
+            <blockquote><p>“{e(x['text'])}”</p></blockquote>
+            <p class="review-card__by"><strong>{e(x['name'])}</strong> · {e(x['treatment'])}</p>
+            <p class="label">Google{' · Sample' if sample else ''}</p>
+          </li>""" for x in r["items"]]
+    photos = [f"""
+          <li class="review-photo fade">{picture(ph['image'], '(min-width: 900px) 30vw, 100vw', e(ph['imageAlt']), R, pos=ph.get('pos'))}</li>""" for ph in r.get("photos", [])]
+    # Mix the two photos into the wall: after the 2nd and 5th card
+    wall = cards[:2] + photos[:1] + cards[2:5] + photos[1:2] + cards[5:]
+    link = f'<p class="section__more"><a class="link" href="{e(r["googleUrl"])}" data-google-reviews>Read reviews on Google</a></p>' if r.get("googleUrl") else ""
     return f"""
-    <section class="section reviews" aria-labelledby="reviews-title" data-reviews>
+    <section class="section wall" aria-labelledby="reviews-title">
       <div class="container">
-        <h2 class="label" id="reviews-title">{e(r['label'])}</h2>
-        <div class="reviews__stage fade" aria-roledescription="carousel" aria-labelledby="reviews-title">{slides}
+        <div class="section__head fade">
+          <p class="label">{rating_line(c)}</p>
+          <h2 class="h2" id="reviews-title">{e(r['title'])}</h2>
         </div>
-        <div class="reviews__controls">
-          <p class="label" aria-hidden="true"><span data-review-count>01</span> / {n:02d}</p>
-          <button type="button" data-review-prev>Previous</button>
-          <button type="button" data-review-next>Next</button>
-          <button type="button" data-review-pause aria-pressed="false">Pause</button>
-        </div>
+        <ul class="wall__grid">{''.join(wall)}
+        </ul>
+        {link}
       </div>
     </section>"""
 
@@ -471,7 +621,11 @@ def visit(c, R, heading="h2"):
             <div><dt class="label">WhatsApp</dt><dd><a href="{wa_link(c, c['contact']['whatsappGreeting'])}">Message the clinic</a></dd></div>
           </dl>
           <p class="visit__access">{e(a['access'])}</p>
-          <p><a class="link" href="{R}book/#plan">Coming from out of town? Plan your visit</a></p>
+          <div class="emergency" data-emergency>
+            <p class="emergency__title">{e(c['emergency']['title'])}</p>
+            <p data-emergency-open><a class="link" href="{tel(c)}">Call now</a> {e(c['emergency']['open'])}</p>
+            <p data-emergency-closed hidden><a class="link" href="{wa_link(c, 'Hello, I have a dental emergency (toothache or broken tooth). Please call me back.')}">WhatsApp request</a> {e(c['emergency']['closed'])}</p>
+          </div>
         </div>
         <div class="map fade">
           <p class="map__landmark label">{e(a.get('landmark') or a['locality'])}</p>
@@ -534,14 +688,14 @@ def planner(c, R, stone=False):
 
 
 def cta_band(c, R, text, line=""):
-    """Compact deep-navy band: centred heading, one line, underline link."""
+    """Compact deep-navy band: centred heading, one line, one call to action."""
     extra = f"<p>{e(line)}</p>" if line else ""
     return f"""
     <section class="band" aria-labelledby="band-title">
       <div class="container band__inner fade">
         <h2 class="h2" id="band-title">{e(text)}</h2>
+        <p><a class="link link--light" href="{R}book/" data-quick-request>{e(c["hero"]["cta"])}</a></p>
         {extra}
-        <p><a class="link link--light" href="{R}book/">{e(c["hero"]["cta"])}</a></p>
       </div>
     </section>"""
 
@@ -549,28 +703,43 @@ def cta_band(c, R, text, line=""):
 # ---------------------------------------------------------------------------------------------- pages
 
 def page_home(c, R):
-    h, i = c["hero"], c["intro"]
-    featured = list(range(min(c["featuredCases"], len(c["cases"]))))
+    h = c["hero"]
     return "".join([
         hero(c, R, h["label"], h["lines"], h["lede"], f"{R}book/", h["cta"], h["image"], h["imageAlt"], h["pos"]),
+        intro(c),
+        pillars(c, R),
+        clinic(c, R),
+        treatment_index(c, R),
+        results_home(c, R),
+        cta_band(c, R, "Book a visit on FC Road.", c["proof"]["evenings"]),
         first_visit(c, R),
-        treatment_grid(c, R, c["treatments"], "treatments-title", "Treatments", "Care for the whole family", stone=True),
-        f"""
-    <section class="clinic" aria-labelledby="clinic-title">
-      {picture(i['image'], '100vw', e(i['imageAlt']), R, pos=i.get('pos'))}
-      <div class="clinic__content fade">
-        <p class="label" id="clinic-title">{e(i['label'])}</p>
-        <p class="clinic__text">{e(i['text'])}</p>
-        <a class="link link--light" href="#doctor">{e(i['link'])}</a>
-      </div>
-    </section>""",
-        compare(c, R),
-        cases_section(c, R, featured, "cases-title", "Results", "Results that look natural", "", link=(f"{R}results/", "All results"), stone=True),
         doctor(c, R),
-        reviews(c),
-        cta_band(c, R, "Book a visit on FC Road.", "Monday to Saturday, until 8 PM. Every step explained first."),
+        reviews(c, R),
+        planner(c, R, stone=True),
         visit(c, R),
     ])
+
+
+def cost_block(c, t):
+    pr = c.get("pricing", {})
+    items = [x for x in (pr.get("consultation"), t.get("cost"), pr.get("estimate"), pr.get("emi")) if x]
+    if not items:
+        return ""
+    lis = "".join(f"<li>{e(x)}</li>" for x in items)
+    note = f'<p class="cost__note">{e(pr["note"])}</p>' if pr.get("note") and c["demo"] else ""
+    return f"""
+    <section class="section cost" aria-labelledby="cost-title">
+      <div class="container split split--text-first">
+        <div class="section__head fade">
+          <p class="label">What it costs</p>
+          <h2 class="h2" id="cost-title">No surprises on the bill</h2>
+        </div>
+        <div class="fade">
+          <ul class="cost__list">{lis}</ul>
+          {note}
+        </div>
+      </div>
+    </section>"""
 
 
 def page_treatment(c, R, idx):
@@ -578,11 +747,12 @@ def page_treatment(c, R, idx):
     cases = [n for n, k in enumerate(c["cases"]) if k["cat"] == t["slug"]]
     steps = "".join(f"""
           <li class="fade"><p class="steps__num">{n + 1:02d}</p><h3 class="h3">{e(s[0])}</h3><p>{e(s[1])}</p></li>""" for n, s in enumerate(t["steps"]))
+    pairs = list(t["faq"]) + ([["What does it cost?", t["cost"] + " You get a written estimate before anything is done."]] if t.get("cost") else [])
     faq = "".join(f"""
           <div class="faq__item">
             <h3><button type="button" aria-expanded="false" aria-controls="faq-{n}" id="faq-q-{n}">{e(q)}<span class="faq__sign" aria-hidden="true"></span></button></h3>
             <div class="faq__panel" id="faq-{n}" role="region" aria-labelledby="faq-q-{n}"><div><p>{e(a)}</p></div></div>
-          </div>""" for n, (q, a) in enumerate(t["faq"]))
+          </div>""" for n, (q, a) in enumerate(pairs))
     others = [c["treatments"][(idx + k) % len(c["treatments"])] for k in (1, 2, 3)]
     return "".join([
         hero(c, R, "Treatments", [t["name"]], t["summary"], f"{R}book/", c["hero"]["cta"], t["image"], t["imageAlt"], t.get("pos"), short=True),
@@ -603,6 +773,7 @@ def page_treatment(c, R, idx):
         </ol>
       </div>
     </section>""",
+        cost_block(c, t),
         cases_section(c, R, cases, "cases-title", "Results", f"{t['name']}: sample cases", "", link=(f"{R}results/", "All results")) if cases else "",
         f"""
     <section class="section section--stone faq" aria-labelledby="faq-title">
@@ -658,6 +829,25 @@ def page_book(c, R):
         <p class="book__note">WhatsApp opens with your request already written. Nothing is sent until you press send.</p>
       </div>
     </section>""", planner(c, R, stone=True), visit(c, R)])
+
+
+def page_stats(c, R):
+    st = c["stats"]
+    tiles = "".join(f'<li><span class="stats__num">{n}</span><span>{e(label)}</span></li>' for label, n in st["items"])
+    scroll = "".join(f"<li><span>{e(label)}</span><strong>{e(v)}</strong></li>" for label, v in st["scroll"])
+    return f"""
+    <section class="section stats" aria-labelledby="page-title">
+      <div class="container">
+        <div class="section__head">
+          <p class="label">For the clinic · not linked from the site</p>
+          <h1 class="h1" id="page-title">{e(st['month'])}</h1>
+          <p class="lede">What the website brought in, counted with privacy-friendly analytics. Every number here is a sample for the demo.</p>
+        </div>
+        <ul class="stats__grid">{tiles}</ul>
+        <h2 class="h3" style="margin-top: 48px">How far visitors read</h2>
+        <ul class="stats__scroll">{scroll}</ul>
+      </div>
+    </section>"""
 
 
 # ---------------------------------------------------------------------------------------------- icons
@@ -720,6 +910,8 @@ def main():
           page_results(c, "../"), case_view("../"))
     write(c, theme, "book/", "../", {"title": f"Book a visit | {name}", "description": f"Book an in-person visit at {name}, {c['address']['street']}, or a video consultation from anywhere."},
           page_book(c, "../"))
+    write(c, theme, "stats/", "../", {"title": f"This month | {name}", "description": "Sample website results for the clinic."},
+          page_stats(c, "../"))
     icons(c)
 
 

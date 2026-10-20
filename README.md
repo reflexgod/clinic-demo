@@ -67,3 +67,19 @@ before/after pair (a simulated whitening, labelled as such). Credits: `CREDITS.m
 
 With `riya.webhookUrl` set to an n8n Chat Trigger webhook, Riya talks to it live. Left empty, she
 gives demo answers built from the config (timings, address, treatments, booking).
+
+## Conversion and measurement
+
+- Hero states who, where and why, with the rating (marked Sample in demo mode), the open-now status,
+  "Book a visit" and "WhatsApp us". Small proof lines from `config.proof` sit under the main calls to action.
+- "Book a visit" and the mobile bar's Book open a 3-tap quick request (treatment, day, time) that writes a
+  WhatsApp message. Days come from the opening hours; today is offered only while the clinic is open.
+- The visit section's emergency line offers a call during opening hours and a WhatsApp request outside them.
+- Treatment pages show "What it costs" from `config.pricing` and each treatment's `cost` (empty fields are
+  hidden) and add a cost question to the FAQ.
+- Events (calls, WhatsApp, quick requests, Riya opened and messages, planner sent, scroll depth) go to the
+  analytics script set in `config.analytics` (e.g. Plausible). Demo mode logs them to the console.
+- `/stats/` is an unlinked sample "This month" page showing how those numbers would look to the clinic.
+
+Honesty rules: no fake scarcity, no pop-ups that open by themselves, no autoplay sound, no invented
+awards. Everything sample is labelled.

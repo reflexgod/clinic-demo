@@ -18,6 +18,7 @@ clinic's premises, patients, doctors or results. Replace before any real launch.
 | `assets/img/photo-dentist-patient-*` | SoyBreno (https://unsplash.com/@soybrenofotografia) | https://unsplash.com/photos/a-woman-getting-her-teeth-brushed-by-a-dentist-7n50uixCBV8 |
 | `assets/img/photo-older-man-*` | Mohammed Umar Ashrafi (https://unsplash.com/@mohammedumarshrafi) | https://unsplash.com/photos/a-smiling-man-in-a-white-polo-shirt-XGs1bSZ9P6s |
 | `assets/img/photo-video-call-*` | Sweet Life (https://unsplash.com/@sweetlifediabetes) | https://unsplash.com/photos/a-woman-sitting-at-a-table-with-a-laptop-4NRgZmVb7bc |
+| `assets/img/photo-doctor-*` | vaibhav vivian (https://unsplash.com/@vrahim11) | https://unsplash.com/photos/a-man-with-a-stethoscope-standing-with-his-arms-crossed-3HIroMoyre8 |
 | `assets/img/case-1-*` | Tanmay Abhay Mahajan (https://unsplash.com/@mr_bond1999) | https://unsplash.com/photos/a-smiling-man-in-a-red-shirt-with-glasses-ONZ84gi7xr0 |
 | `assets/img/case-2-*` | siddharth vyas (https://unsplash.com/@siddharth_vyas1) | https://unsplash.com/photos/a-woman-with-an-umbrella-smiling-for-the-camera-Sa0YZta_Fb8 |
 | `assets/img/case-3-*` | Vitaly Gariev (https://unsplash.com/@silverkblack) | https://unsplash.com/photos/smiling-man-with-dark-stubble-AJ66j-TX_Ks |

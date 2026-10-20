@@ -39,6 +39,50 @@
     else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   };
 
+  /* 0. Measurement: privacy-friendly analytics from the config (e.g. Plausible). Demo mode, or no
+        provider set, logs each event to the console so the clinic can see what would be counted. */
+  const A = C.analytics || {};
+  if (A.src && A.domain) {
+    const tag = document.createElement('script');
+    tag.defer = true;
+    tag.src = A.src;
+    tag.dataset.domain = A.domain;
+    document.head.append(tag);
+    window.plausible = window.plausible || function plausible() { (window.plausible.q = window.plausible.q || []).push(arguments); };
+  }
+  const track = (name, props = {}) => {
+    if (window.plausible && A.src) window.plausible(name, { props });
+    if (C.demo || !A.src) console.info('[analytics]', name, props);
+  };
+  window.clinicTrack = track;
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('a[href]');
+    if (!link) return;
+    if (link.href.startsWith('tel:')) track('Call click', { place: link.closest('[data-mobile-bar]') ? 'mobile bar' : 'page' });
+    else if (link.href.includes('wa.me/') && !link.matches('[data-whatsapp], [data-quick-send]')) track('WhatsApp click');
+  }, true);
+  // Scroll depth: 25 / 50 / 75 / 100%, once each
+  const depths = [25, 50, 75, 100];
+  window.addEventListener('scroll', () => {
+    const seen = (window.scrollY + window.innerHeight) / document.documentElement.scrollHeight * 100;
+    while (depths.length && seen >= depths[0] - 1) track('Scroll depth', { percent: depths.shift() });
+  }, { passive: true });
+
+  // Opening hours, in the clinic's time zone (used by the open-now status and the emergency line)
+  const toMinutes = (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+  const clinicNow = () => {
+    const parts = Object.fromEntries(new Intl.DateTimeFormat('en-GB', {
+      timeZone: (C.hours || {}).timeZone || 'Asia/Kolkata', weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+    }).formatToParts(new Date()).map((x) => [x.type, x.value]));
+    return { day: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(parts.weekday), minutes: Number(parts.hour) * 60 + Number(parts.minute) };
+  };
+  const isOpenNow = () => {
+    if (!C.hours) return false;
+    const { day, minutes } = clinicNow();
+    const today = C.hours.days[day];
+    return Boolean(today && minutes >= toMinutes(today[0]) && minutes < toMinutes(today[1]));
+  };
+
   /* 1. Header: transparent over the hero, solid once the hero has scrolled away */
   const header = document.querySelector('[data-header]');
   const hero = document.querySelector('[data-hero]');
@@ -108,6 +152,145 @@
   } else {
     fades.forEach((el) => el.classList.add('is-in'));
   }
+
+  /* 4b. Treatments list (desktop with a mouse): a small preview follows the cursor, to the right of it */
+  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine) and (min-width: 900px)');
+  document.querySelectorAll('[data-index]').forEach((section) => {
+    const preview = section.querySelector('[data-index-preview]');
+    const imgs = [...preview.children];
+    const rows = [...section.querySelectorAll('[data-preview]')];
+    let x = 0; let y = 0; let tx = 0; let ty = 0; let raf = 0; let shown = false;
+    const place = () => { preview.style.transform = `translate3d(${x}px, ${y}px, 0)`; };
+    const tick = () => {
+      x += (tx - x) * 0.16;
+      y += (ty - y) * 0.16;
+      place();
+      raf = Math.abs(tx - x) + Math.abs(ty - y) > 0.3 ? requestAnimationFrame(tick) : 0;
+    };
+    const aim = (clientX, clientY) => {
+      const box = section.getBoundingClientRect();
+      const p = preview.getBoundingClientRect();
+      tx = Math.min(Math.max(clientX - box.left + 40, 0), box.width - p.width);
+      ty = Math.min(Math.max(clientY - box.top - p.height / 2, 0), box.height - p.height);
+      if (!shown || reduceMotion) { x = tx; y = ty; place(); } else if (!raf) raf = requestAnimationFrame(tick);
+    };
+    const show = (row) => {
+      imgs.forEach((img, n) => img.classList.toggle('is-active', n === Number(row.dataset.preview)));
+      preview.classList.add('is-visible');
+      shown = true;
+    };
+    const hide = () => { preview.classList.remove('is-visible'); shown = false; };
+    rows.forEach((row) => {
+      row.addEventListener('mouseenter', (e) => { if (!finePointer.matches) return; aim(e.clientX, e.clientY); show(row); });
+      row.addEventListener('focus', () => {
+        if (!finePointer.matches) return;
+        const name = row.querySelector('.index__name').getBoundingClientRect();
+        aim(name.right, name.top + name.height / 2);
+        show(row);
+      });
+      row.addEventListener('blur', hide);
+    });
+    section.addEventListener('mousemove', (e) => { if (shown) aim(e.clientX, e.clientY); });
+    section.querySelector('.index__list').addEventListener('mouseleave', hide);
+  });
+
+  /* 4c. Quick request: treatment, then day, then time; the result opens WhatsApp prefilled */
+  const quick = document.querySelector('[data-quick]');
+  if (quick && C.treatments) {
+    const Q = C.quickRequest || { days: 6, times: [] };
+    const q = (sel) => quick.querySelector(sel);
+    const options = q('[data-quick-options]');
+    const title = q('[data-quick-q]');
+    const state = {};
+    let returnTo = null;
+    const DAY = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const label = (t) => { const [h, m] = t.split(':').map(Number); return `${((h + 11) % 12) + 1}${m ? `:${String(m).padStart(2, '0')}` : ''} ${h < 12 ? 'AM' : 'PM'}`; };
+    const openDays = () => {
+      const out = [];
+      const { day, minutes } = clinicNow();
+      for (let i = 0; out.length < Q.days && i < 14; i += 1) {
+        const d = (day + i) % 7;
+        const hours = C.hours.days[d];
+        // Today only while there is still at least an hour of opening time left
+        if (hours && !(i === 0 && minutes > toMinutes(hours[1]) - 60)) out.push(i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : DAY[d]);
+      }
+      return out;
+    };
+    const choose = (step, items, onPick) => {
+      q('[data-quick-count]').textContent = `${step} / 3`;
+      q('[data-quick-done]').hidden = true;
+      options.hidden = false;
+      options.replaceChildren(...items.map(([text, small, value]) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = text;
+        if (small) { const s2 = document.createElement('small'); s2.textContent = small; b.append(s2); }
+        b.addEventListener('click', () => onPick(value || text));
+        return b;
+      }));
+      focusSoon(title);
+    };
+    const stepTreatment = () => {
+      title.textContent = 'What is the visit for?';
+      choose(1, [...C.treatments.map((t) => [t.name, '', t.name]), ['Not sure yet', 'A general check-up and advice', 'a check-up and advice']], (v) => { state.treatment = v; stepDay(); });
+    };
+    const stepDay = () => {
+      title.textContent = 'Which day suits you?';
+      choose(2, openDays().map((d) => [d]), (v) => { state.day = v; stepTime(); });
+    };
+    const stepTime = () => {
+      title.textContent = 'What time of day?';
+      choose(3, Q.times.map(([name, from, to]) => [name, `${label(from)} to ${label(to)}`, name.toLowerCase()]), (v) => { state.time = v; done(); });
+    };
+    const done = () => {
+      title.textContent = 'Your request is ready';
+      q('[data-quick-count]').textContent = 'Done';
+      options.hidden = true;
+      const msg = `Hello ${C.name}, I'd like to book a visit for ${state.treatment.toLowerCase()}, ${state.day.toLowerCase()} (${state.time}). Please confirm a time.`;
+      q('[data-quick-summary]').textContent = `${state.treatment}, ${state.day}, ${state.time}.`;
+      q('[data-quick-send]').href = `https://wa.me/${C.contact.whatsapp}?text=${encodeURIComponent(msg)}`;
+      q('[data-quick-done]').hidden = false;
+      focusSoon(title);
+    };
+    const onKey = (e) => { if (e.key === 'Escape') close(); else if (e.key === 'Tab') trapFocus(quick, e); };
+    const open = (trigger) => {
+      returnTo = trigger;
+      stepTreatment();
+      lockScroll(true);
+      quick.inert = false;
+      quick.classList.add('is-open');
+      document.addEventListener('keydown', onKey);
+      track('Quick request opened');
+    };
+    function close() {
+      quick.classList.remove('is-open');
+      quick.inert = true;
+      lockScroll(false);
+      document.removeEventListener('keydown', onKey);
+      if (returnTo) returnTo.focus({ preventScroll: true });
+    }
+    document.addEventListener('click', (e) => {
+      const trigger = e.target.closest('[data-quick-request]');
+      if (!trigger) return;
+      e.preventDefault();
+      open(trigger);
+    });
+    q('[data-quick-close]').addEventListener('click', close);
+    q('[data-quick-restart]').addEventListener('click', stepTreatment);
+    q('[data-quick-send]').addEventListener('click', () => track('Quick request completed', { treatment: state.treatment, day: state.day, time: state.time }));
+    quick.addEventListener('click', (e) => { if (e.target === quick) close(); });
+  }
+
+  /* 4d. Emergency line: a call during opening hours, a WhatsApp request outside them */
+  document.querySelectorAll('[data-emergency]').forEach((box) => {
+    const sync = () => {
+      const open = isOpenNow();
+      box.querySelector('[data-emergency-open]').hidden = !open;
+      box.querySelector('[data-emergency-closed]').hidden = open;
+    };
+    sync();
+    setInterval(sync, 60000);
+  });
 
   /* 5. Mobile action bar: shown after the hero, hidden over the footer */
   const bar = document.querySelector('[data-mobile-bar]');
@@ -307,19 +490,12 @@
   const statusEls = document.querySelectorAll('[data-open-status]');
   if (statusEls.length && C.hours) {
     const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const toMinutes = (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
     const label = (t) => {
       const [h, m] = t.split(':').map(Number);
       return `${((h + 11) % 12) + 1}${m ? `:${String(m).padStart(2, '0')}` : ''} ${h < 12 ? 'AM' : 'PM'}`;
     };
-    const now = () => {
-      const parts = Object.fromEntries(new Intl.DateTimeFormat('en-GB', {
-        timeZone: C.hours.timeZone, weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
-      }).formatToParts(new Date()).map((p) => [p.type, p.value]));
-      return { day: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(parts.weekday), minutes: Number(parts.hour) * 60 + Number(parts.minute) };
-    };
     const describe = () => {
-      const { day, minutes } = now();
+      const { day, minutes } = clinicNow();
       const today = C.hours.days[day];
       if (today && minutes >= toMinutes(today[0]) && minutes < toMinutes(today[1])) return `Open now · until ${label(today[1])}`;
       if (today && minutes < toMinutes(today[0])) return `Closed now · opens today at ${label(today[0])}`;
@@ -360,7 +536,9 @@
       const msg = `Hello ${C.name}, I'm planning a visit for ${t ? t.name.toLowerCase() : 'a consultation'}.`
         + `${state.city ? ` I'm travelling from ${state.city}` : " I'm travelling"} and can be in ${P.city} for ${state.days} ${dayWord}.`
         + ' Could we arrange a video consultation first?';
-      planner.querySelector('[data-whatsapp]').href = `https://wa.me/${C.contact.whatsapp}?text=${encodeURIComponent(msg)}`;
+      const send = planner.querySelector('[data-whatsapp]');
+      send.href = `https://wa.me/${C.contact.whatsapp}?text=${encodeURIComponent(msg)}`;
+      send.onclick = () => track('Planner sent', { treatment: name, days: state.days });
       show('result');
     };
     planner.querySelectorAll('[data-treatment]').forEach((button) => button.addEventListener('click', () => {
@@ -414,9 +592,17 @@
     document.body.append(note);
     let timer = 0;
     document.addEventListener('click', (e) => {
-      const link = e.target.closest('a[href^="tel:"], a[href*="wa.me/"]');
+      const link = e.target.closest('a[href^="tel:"], a[href*="wa.me/"], a[data-google-reviews]');
       if (!link) return;
       e.preventDefault();
+      if (link.matches('[data-google-reviews]')) {
+        note.innerHTML = '<strong>Demo site</strong>';
+        note.append('On the live site this opens the clinic’s Google reviews.');
+        note.classList.add('is-visible');
+        clearTimeout(timer);
+        timer = setTimeout(() => note.classList.remove('is-visible'), 7000);
+        return;
+      }
       const whatsapp = link.href.includes('wa.me/');
       const text = whatsapp ? new URL(link.href).searchParams.get('text') : '';
       note.innerHTML = '<strong>Demo site</strong>';
@@ -437,7 +623,7 @@
     launcher.className = 'riya-launcher';
     launcher.textContent = `Ask ${riya.name}`;
     launcher.setAttribute('aria-expanded', 'false');
-    launcher.setAttribute('aria-label', `Chat with ${riya.name}, the clinic’s receptionist`);
+    launcher.setAttribute('aria-label', `Ask ${riya.name}, the clinic’s receptionist`);
     document.body.append(launcher);
     let chat = null;
     launcher.addEventListener('click', async () => {
@@ -445,6 +631,7 @@
         const { mountRiya } = await import(`${ASSETS}js/riya.js`);
         chat = mountRiya({ clinic: C, launcher });
       }
+      if (!launcher.matches('[aria-expanded="true"]')) track('Riya opened');
       chat.toggle();
     });
   }

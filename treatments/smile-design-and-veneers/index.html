@@ -74,7 +74,8 @@
         <p class="label hero__label hero__after">Treatments</p>
         <h1 class="hero__title" id="page-title"><span class="mask"><span style="--i:0">Smile design &amp; veneers</span></span></h1>
         <p class="hero__lede hero__after" style="--i:1">Small changes to shape and shade, previewed first.</p>
-        <p class="hero__cta hero__after" style="--i:1"><a class="link link--light" href="../../book/">Book a visit</a></p>
+        <p class="hero__cta hero__after" style="--i:1"><a class="link link--light" href="../../book/" data-quick-request>Book a visit</a></p>
+
       </div>
     </section>
     <section class="section" aria-labelledby="about-title">
@@ -94,6 +95,18 @@
           <li class="fade"><p class="steps__num">02</p><h3 class="h3">Preview</h3><p>A mock-up of the new smile before any treatment.</p></li>
           <li class="fade"><p class="steps__num">03</p><h3 class="h3">Treatment</h3><p>Bonding or veneers made to the agreed design.</p></li>
         </ol>
+      </div>
+    </section>
+    <section class="section cost" aria-labelledby="cost-title">
+      <div class="container split split--text-first">
+        <div class="section__head fade">
+          <p class="label">What it costs</p>
+          <h2 class="h2" id="cost-title">No surprises on the bill</h2>
+        </div>
+        <div class="fade">
+          <ul class="cost__list"><li>₹500 consultation</li><li>Sample: from ₹8,000 per tooth.</li><li>A clear written estimate before any treatment</li><li>EMI options available</li></ul>
+          <p class="cost__note">Sample prices for the demo.</p>
+        </div>
       </div>
     </section>
     <section class="section cases" aria-labelledby="cases-title" data-cases-block>
@@ -140,14 +153,18 @@
             <h3><button type="button" aria-expanded="false" aria-controls="faq-1" id="faq-q-1">Do veneers harm teeth?<span class="faq__sign" aria-hidden="true"></span></button></h3>
             <div class="faq__panel" id="faq-1" role="region" aria-labelledby="faq-q-1"><div><p>Thin veneers need very little preparation, sometimes none.</p></div></div>
           </div>
+          <div class="faq__item">
+            <h3><button type="button" aria-expanded="false" aria-controls="faq-2" id="faq-q-2">What does it cost?<span class="faq__sign" aria-hidden="true"></span></button></h3>
+            <div class="faq__panel" id="faq-2" role="region" aria-labelledby="faq-q-2"><div><p>Sample: from ₹8,000 per tooth. You get a written estimate before anything is done.</p></div></div>
+          </div>
         </div>
       </div>
     </section>
     <section class="band" aria-labelledby="band-title">
       <div class="container band__inner fade">
         <h2 class="h2" id="band-title">Talk it through with Dr. Mehta.</h2>
+        <p><a class="link link--light" href="../../book/" data-quick-request>Book a visit</a></p>
         <p>A first visit is a conversation. Nothing is booked until you decide.</p>
-        <p><a class="link link--light" href="../../book/">Book a visit</a></p>
       </div>
     </section>
     <section class="section planner" id="plan" aria-labelledby="planner-title" data-planner>
@@ -286,7 +303,25 @@
 
   <nav class="mobile-bar" aria-label="Quick actions" data-mobile-bar inert>
     <a href="tel:+910000000000">Call</a>
-    <a href="../../book/">Book a visit</a>
+    <a href="https://wa.me/910000000000?text=Hello%20Smile%20Dental%20Clinic%2C%20I%E2%80%99d%20like%20to%20book%20a%20visit.">WhatsApp</a>
+    <a href="../../book/" data-quick-request>Book</a>
   </nav>
+
+  <div class="quick" id="quick-request" role="dialog" aria-modal="true" aria-labelledby="quick-title" inert data-quick>
+    <div class="quick__panel">
+      <div class="quick__top">
+        <p class="label" data-quick-count>1 / 3</p>
+        <button type="button" data-quick-close>Close</button>
+      </div>
+      <h2 class="h3" id="quick-title" tabindex="-1" data-quick-q>What is the visit for?</h2>
+      <div class="quick__options" data-quick-options></div>
+      <div class="quick__done" data-quick-done hidden>
+        <p class="quick__summary" data-quick-summary></p>
+        <a class="link" href="#" data-quick-send>Send on WhatsApp</a>
+        <p class="proof">No pressure: nothing is booked until you decide</p>
+        <button class="quick__restart" type="button" data-quick-restart>Start again</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
