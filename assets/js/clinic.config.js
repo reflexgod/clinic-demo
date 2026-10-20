@@ -28,7 +28,14 @@ window.CLINIC = {
   },
 
   name: 'Smile Dental Clinic',
-  wordmark: 'Smile Dental Clinic', // text logo in the heading font (header and footer)
+  wordmark: 'Smile Dental Clinic', // set beside the logo mark in the heading font (header and footer)
+  logo: {
+    // The mark: one SVG path in a 48 x 48 box, drawn as a round-capped stroke. Ink colour on light
+    // backgrounds, limestone on dark ones and photos. This one is a soft "S" whose lower curve
+    // becomes a smile. tools/build.py also writes assets/logo/*.svg and the favicons from it.
+    mark: 'M34 13.5C31 9.5 25 8 20.5 9.5C15 11.5 15 18 20 20.5L28 24.5C34 27.5 35 34 30.5 37.5C25 41.5 15 40.5 10 35',
+    stroke: 3.4,
+  },
   tagline: 'Your family dentist on FC Road.',
   description: 'Family dental clinic on FC Road, Shivajinagar, Pune. Every step explained, no unnecessary treatment, and evening appointments until 8 PM, Monday to Saturday.',
 
@@ -331,8 +338,11 @@ window.CLINIC = {
   riya: {
     enabled: true,
     name: 'Riya',
-    webhookUrl: '',
+    webhookUrl: 'https://viraaj19.app.n8n.cloud/webhook/36a7ae43-365d-4cc8-b5bc-33d197384391/chat',
     welcome: 'Hello, I’m Riya. I can answer questions about the clinic or take an appointment request for you.',
     quick: ['Clinic timings', 'Where are you?', 'Treatments', 'Book a visit'],
+    hint: 'Hi, I’m Riya', // shown once beside the launcher on desktop, after 6 seconds
+    // Mascot colours: theme colour names (bg, ink, stone, accent) or any hex value.
+    mascot: { circle: 'ink', body: 'bg', features: 'ink', cheeks: 'accent', headset: 'accent', showHeadset: true },
   },
 };
