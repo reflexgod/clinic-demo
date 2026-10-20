@@ -19,12 +19,8 @@ clinic's premises, patients, doctors or results. Replace before any real launch.
 | `assets/img/photo-older-man-*` | Mohammed Umar Ashrafi (https://unsplash.com/@mohammedumarshrafi) | https://unsplash.com/photos/a-smiling-man-in-a-white-polo-shirt-XGs1bSZ9P6s |
 | `assets/img/photo-video-call-*` | Sweet Life (https://unsplash.com/@sweetlifediabetes) | https://unsplash.com/photos/a-woman-sitting-at-a-table-with-a-laptop-4NRgZmVb7bc |
 | `assets/img/photo-doctor-*` | vaibhav vivian (https://unsplash.com/@vrahim11) | https://unsplash.com/photos/a-man-with-a-stethoscope-standing-with-his-arms-crossed-3HIroMoyre8 |
-| `assets/img/case-1-*` | Tanmay Abhay Mahajan (https://unsplash.com/@mr_bond1999) | https://unsplash.com/photos/a-smiling-man-in-a-red-shirt-with-glasses-ONZ84gi7xr0 |
-| `assets/img/case-2-*` | siddharth vyas (https://unsplash.com/@siddharth_vyas1) | https://unsplash.com/photos/a-woman-with-an-umbrella-smiling-for-the-camera-Sa0YZta_Fb8 |
-| `assets/img/case-3-*` | Vitaly Gariev (https://unsplash.com/@silverkblack) | https://unsplash.com/photos/smiling-man-with-dark-stubble-AJ66j-TX_Ks |
-| `assets/img/case-4-*` | Tanmay Abhay Mahajan (https://unsplash.com/@mr_bond1999) | https://unsplash.com/photos/a-smiling-man-wearing-glasses-and-a-maroon-kurta-Oj_PWTQo6b8 |
-| `assets/img/case-5-*` | Yogendra Singh (https://unsplash.com/@yogendras31) | https://unsplash.com/photos/woman-in-red-and-yellow-shirt-RgDVFbXllVA |
-| `assets/img/case-6-*` | Parimal Jain (https://unsplash.com/@parimaljain) | https://unsplash.com/photos/woman-in-red-patterned-sweater-MHg6J6m_eqI |
+| `assets/img/smile-2-*` | Vitaly Gariev (https://unsplash.com/@silverkblack) | https://unsplash.com/photos/person-smiling-with-silver-nose-ring-uUMcHRHBSw8 |
+| `assets/img/smile-3-*` | Vitaly Gariev (https://unsplash.com/@silverkblack) | https://unsplash.com/photos/smiling-man-with-dark-stubble-AJ66j-TX_Ks |
 | `assets/img/photo-implant-*` | Katarzyna Zygnerska (https://unsplash.com/@katasha) | https://unsplash.com/photos/gloved-hand-holding-a-dental-implant-and-crown-eHwRLpfHSKY |
 | `assets/img/photo-model-*` | Harold Hisona (https://unsplash.com/@harold_angus) | https://unsplash.com/photos/dentist-demonstrating-dental-implant-on-model-LOgBp87WzIk |
 | `assets/img/photo-mirror-tool-*` | Caroline LM (https://unsplash.com/@carocaro1987) | https://unsplash.com/photos/dental-mirror-and-explorer-tool-ux18C551ghI |

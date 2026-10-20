@@ -37,10 +37,6 @@ export function mountRiya({ clinic: C, launcher, mascot }) {
     sessionId = (crypto.randomUUID && crypto.randomUUID()) || String(Date.now()) + Math.random().toString(16).slice(2);
     try { sessionStorage.setItem('riya-session', sessionId); } catch (e) { /* storage blocked */ }
   }
-  const mark = C.logo
-    ? `<svg class="riya__mark" viewBox="0 0 40 40" aria-hidden="true"><path d="${C.logo.mark}" fill="none" stroke="currentColor" stroke-width="${C.logo.stroke * 1.2}" stroke-linecap="round" stroke-linejoin="round"/></svg>`
-    : '';
-
   const panel = document.createElement('section');
   panel.className = 'riya';
   panel.id = 'riya';
@@ -52,7 +48,7 @@ export function mountRiya({ clinic: C, launcher, mascot }) {
       <span class="riya__avatar riya__avatar--head">${mascot()}</span>
       <div class="riya__id">
         <p class="riya__name" id="riya-title"></p>
-        <p class="riya__status">${mark}<span></span></p>
+        <p class="riya__status"><span class="riya__clinic"></span><span class="riya__online"><span class="riya__dot" aria-hidden="true"></span>Online</span></p>
       </div>
       <button class="riya__close" type="button" aria-label="Close chat">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
@@ -68,10 +64,10 @@ export function mountRiya({ clinic: C, launcher, mascot }) {
     </form>
     <p class="riya__note"></p>`;
   panel.querySelector('.riya__name').textContent = R.name;
-  panel.querySelector('.riya__status span').textContent = `${C.name} · usually replies in seconds`;
+  panel.querySelector('.riya__clinic').textContent = `${C.name} ·`;
   panel.querySelector('#riya-input').placeholder = `Message ${R.name}…`;
   panel.querySelector('.riya__note').textContent = live
-    ? `${R.name} is an AI assistant. Appointments are confirmed by the clinic team.`
+    ? (R.note || `${R.name} is an AI assistant. Appointments are confirmed by the clinic team.`)
     : `Demo: ${R.name} answers from the clinic’s details.`;
   document.body.append(panel);
 

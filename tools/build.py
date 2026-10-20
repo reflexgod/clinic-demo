@@ -422,10 +422,10 @@ def results_home(c, R):
     tiles = "".join(f"""
             <li class="case-item" data-cat="{c['cases'][i]['cat']}">
               <button class="case" type="button" data-case="{i}">
-                <span class="case__media">{picture(c['cases'][i]['image'], '(min-width: 900px) 22vw, 50vw', '', R, pos='50% 40%')}</span>
-                <span class="case__name">{e(c['cases'][i]['name'])}<span class="visually-hidden"> (sample case)</span></span>
+                <span class="case__media">{picture(c['cases'][i]['image'], '(min-width: 900px) 15vw, 33vw', 'Sample smile: ' + e(c['cases'][i]['name']), R)}</span>
+                <span class="case__name">{e(c['cases'][i]['name'])}</span><span class="case__meta label">Sample</span>
               </button>
-            </li>""" for i in range(min(4, len(c["cases"]))))
+            </li>""" for i in range(min(c["featuredCases"], len(c["cases"]))))
     return f"""
     <section class="section results-home" aria-labelledby="results-title" data-cases-block>
       <div class="container">
@@ -613,13 +613,12 @@ def visit(c, R, heading="h2"):
     a = c["address"]
     hours = "<br>".join(e(x) for x in c["hours"]["summary"])
     from urllib.parse import quote
-    map_src = f"https://www.google.com/maps?q={quote(a['mapQuery'])}&output=embed"
     return f"""
     <section class="section visit" id="visit" aria-labelledby="visit-title">
       <div class="container split split--text-first">
         <div class="split__text fade">
           <p class="label">Visit</p>
-          <{heading} class="h2" id="visit-title">{e(a['lines'][0])}</{heading}>
+          <{heading} class="h2" id="visit-title">Visit us</{heading}>
           <address>{'<br>'.join(e(x) for x in a['lines'])}</address>
           <p class="open-status" data-open-status></p>
           <dl class="details">
@@ -635,11 +634,8 @@ def visit(c, R, heading="h2"):
           </div>
         </div>
         <div class="map fade">
+          <iframe src="{e(a['mapEmbed'])}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Map of {e(a['mapQuery'])}"></iframe>
           <p class="map__landmark label">{e(a.get('landmark') or a['locality'])}</p>
-          <button class="map__load" type="button" data-map-src="{e(map_src)}" data-map-title="Map of {e(a['mapQuery'])}">
-            <span class="map__place">{e(a['mapQuery'])}</span>
-            <span class="link">Load Google Map</span>
-          </button>
         </div>
       </div>
     </section>"""

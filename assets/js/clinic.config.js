@@ -71,7 +71,9 @@ window.CLINIC = {
     postalCode: '411004',
     country: 'IN',
     landmark: 'Near Fergusson College', // optional, shown on the map block
-    mapQuery: 'FC Road, Shivajinagar, Pune', // what Google Maps searches for
+    mapQuery: 'FC Road, Shivajinagar, Pune', // used in the map's title
+    // Google Maps embed of the area (not a specific business in the demo); each client sets their own
+    mapEmbed: 'https://www.google.com/maps?q=FC+Road,+Shivajinagar,+Pune&z=15&output=embed',
     access: 'Ground floor · Step-free entrance · Street parking nearby',
   },
 
@@ -323,49 +325,21 @@ window.CLINIC = {
   // cat links a case to a treatment slug (filters and treatment pages).
   cases: [
     {
-      name: 'Dental implants', cat: 'dental-implants', meta: 'Sample case · 3 visits · 4 months', sample: true, image: 'case-1', face: null,
+      name: 'Dental implants', cat: 'dental-implants', meta: 'Sample case · 3 visits · 4 months', sample: true, image: 'smile-2', face: null,
       concern: 'A missing back tooth made chewing on one side difficult.',
       plan: 'One implant, with a crown matched to the teeth beside it.',
       result: 'Comfortable chewing on both sides again.',
       note: 'The best implant is the one nobody notices.',
     },
     {
-      name: 'Smile design & veneers', cat: 'smile-design-and-veneers', meta: 'Sample case · 3 visits · 3 weeks', sample: true, image: 'case-2', face: null,
-      concern: 'Uneven front teeth she had become shy about.',
-      plan: 'A previewed smile design, then four thin veneers.',
-      result: 'An even, natural smile she is happy to show.',
-      note: 'Less is usually more.',
-    },
-    {
-      name: 'Clear aligners', cat: 'clear-aligners', meta: 'Sample case · 8 visits · 9 months', sample: true, image: 'case-3', face: null,
+      name: 'Clear aligners', cat: 'clear-aligners', meta: 'Sample case · 8 visits · 9 months', sample: true, image: 'smile-3', face: null,
       concern: 'Crowded lower teeth that were hard to clean.',
       plan: 'Clear aligners, with short reviews every six weeks.',
       result: 'Straighter teeth and easier brushing, no braces.',
       note: 'A healthy bite matters as much as straight teeth.',
     },
-    {
-      name: 'Crowns & bridges', cat: 'crowns-and-bridges', meta: 'Sample case · 2 visits · 2 weeks', sample: true, image: 'case-4', face: null,
-      concern: 'Worn back teeth made eating uncomfortable.',
-      plan: 'Two ceramic crowns, with the bite rebalanced.',
-      result: 'Comfortable chewing, teeth protected for years.',
-      note: 'We fix the bite first; the look follows.',
-    },
-    {
-      name: 'Dental implants', cat: 'dental-implants', meta: 'Sample case · 4 visits · 5 months', sample: true, image: 'case-5', face: null,
-      concern: 'A front tooth lost after a fall.',
-      plan: 'An implant, with a temporary tooth while it healed.',
-      result: 'A front tooth that matches its neighbours.',
-      note: 'Front teeth are judged in millimetres.',
-    },
-    {
-      name: 'Smile design & veneers', cat: 'smile-design-and-veneers', meta: 'Sample case · 2 visits · 2 weeks', sample: true, image: 'case-6', face: null,
-      concern: 'Small gaps and chipped edges on the front teeth.',
-      plan: 'Tooth-coloured bonding, with no drilling.',
-      result: 'An even smile line in two short visits.',
-      note: 'The gentlest option is usually the right one.',
-    },
   ],
-  featuredCases: 3, // how many cases the homepage shows
+  featuredCases: 2, // how many cases the homepage shows
 
   reviews: {
     title: 'What patients say',
@@ -416,7 +390,8 @@ window.CLINIC = {
     webhookUrl: 'https://viraaj19.app.n8n.cloud/webhook/36a7ae43-365d-4cc8-b5bc-33d197384391/chat',
     welcome: 'Hello, I’m Riya. I can answer questions about the clinic or take an appointment request for you.',
     quick: ['Clinic timings', 'Treatments', 'Book a visit', 'Where are you?'],
-    hint: 'Hi, I’m Riya', // shown once beside the launcher on desktop, after 6 seconds
+    hint: 'Hi, I’m Riya',
+    note: 'Riya can check availability and book your appointment instantly.', // small line under the chat input // shown once beside the launcher on desktop, after 6 seconds
     // Mascot colours: theme colour names (bg, ink, stone, accent) or any hex value.
     mascot: { circle: 'ink', body: 'bg', features: 'ink', cheeks: 'stone', headset: 'accent', showHeadset: true },
   },

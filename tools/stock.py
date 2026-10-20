@@ -32,22 +32,20 @@ PICKS = {
     "photo-older-man": "https://unsplash.com/photos/a-smiling-man-in-a-white-polo-shirt-XGs1bSZ9P6s",
     "photo-video-call": "https://unsplash.com/photos/a-woman-sitting-at-a-table-with-a-laptop-4NRgZmVb7bc",
     "photo-doctor": "https://unsplash.com/photos/a-man-with-a-stethoscope-standing-with-his-arms-crossed-3HIroMoyre8",
-    # Sample case portraits
-    "case-1": "https://unsplash.com/photos/a-smiling-man-in-a-red-shirt-with-glasses-ONZ84gi7xr0",
-    "case-2": "https://unsplash.com/photos/a-woman-with-an-umbrella-smiling-for-the-camera-Sa0YZta_Fb8",
-    "case-3": "https://unsplash.com/photos/smiling-man-with-dark-stubble-AJ66j-TX_Ks",
-    "case-4": "https://unsplash.com/photos/a-smiling-man-wearing-glasses-and-a-maroon-kurta-Oj_PWTQo6b8",
-    "case-5": "https://unsplash.com/photos/woman-in-red-and-yellow-shirt-RgDVFbXllVA",
-    "case-6": "https://unsplash.com/photos/woman-in-red-patterned-sweater-MHg6J6m_eqI",
+    # Sample smiles for the results grid: 1:1, nose to chin
+    "smile-2": "https://unsplash.com/photos/person-smiling-with-silver-nose-ring-uUMcHRHBSw8",
+    "smile-3": "https://unsplash.com/photos/smiling-man-with-dark-stubble-AJ66j-TX_Ks",
     # Objects and hands only
     "photo-implant": "https://unsplash.com/photos/gloved-hand-holding-a-dental-implant-and-crown-eHwRLpfHSKY",
     "photo-model": "https://unsplash.com/photos/dentist-demonstrating-dental-implant-on-model-LOgBp87WzIk",
     "photo-mirror-tool": "https://unsplash.com/photos/dental-mirror-and-explorer-tool-ux18C551ghI",
 }
+# Square nose-to-chin crops for the smile grid: (centre x, centre y, side as a fraction of the height)
+SQUARE = {
+    "smile-2": (.5, .4, .56), "smile-3": (.52, .58, .42),
+}
 # 4:5 crops for portraits: (centre x, centre y, width) as fractions of the photo
 CROPS = {
-    "case-1": (.47, .36, .78), "case-2": (.42, .42, .78), "case-3": (.5, .42, .95),
-    "case-4": (.5, .38, .78), "case-5": (.5, .5, .72), "case-6": (.4, .3, .62),
     "photo-smile-woman": (.5, .45, 1.0),
     "photo-doctor": (.5, .4, .78),
 }
@@ -91,6 +89,12 @@ def main():
             im = Image.open(src).convert("RGB")
             if name in CROPS:
                 im = crop45(im, *CROPS[name])
+            elif name in SQUARE:
+                cx, cy, side = SQUARE[name]
+                n = min(round(side * im.height), im.width, im.height)
+                x = min(max(round(cx * im.width - n / 2), 0), im.width - n)
+                y = min(max(round(cy * im.height - n / 2), 0), im.height - n)
+                im = im.crop((x, y, x + n, y + n))
             files, size = export(grade(im), name)
             rows.append(f"| `assets/img/{name}-*` | {info['author']} ({info['profile']}) | {url} |")
             print(f"{name:<22} {size[0]}x{size[1]}  {info['author']:<24} 1280: {files.get(1280)}")
