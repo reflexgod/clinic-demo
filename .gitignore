@@ -1,0 +1,10 @@
+# Local tooling and caches
+.venv/
+__pycache__/
+.idea/
+.vscode/
+.DS_Store
+
+# Original downloads (large; re-created by tools/stock.py) and review screenshots
+src-assets/
+review/

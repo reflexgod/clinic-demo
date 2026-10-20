@@ -1,0 +1,10 @@
+# GitHub Pages (Jekyll) build settings: publish the website only.
+exclude:
+  - README.md
+  - CREDITS.md
+  - tools/
+  - review/
+  - src-assets/
+  - .venv/
+  - .editorconfig
+  - .gitignore

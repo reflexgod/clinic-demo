@@ -1,0 +1,15 @@
+{
+  "name": "Smile Dental Clinic",
+  "short_name": "Smile",
+  "start_url": "./",
+  "display": "browser",
+  "background_color": "#F5F2EC",
+  "theme_color": "#F5F2EC",
+  "icons": [
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
