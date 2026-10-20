@@ -298,7 +298,7 @@ def hero(c, R, label, lines, lede, cta_href, cta, image, alt, pos, short=False):
     </section>"""
 
 
-def treatment_grid(c, R, items, heading_id, label, title, section_id="treatments"):
+def treatment_grid(c, R, items, heading_id, label, title, section_id="treatments", stone=False):
     cards = "".join(f"""
           <li class="fade">
             <a class="card" href="{R}treatments/{t['slug']}/">
@@ -308,7 +308,7 @@ def treatment_grid(c, R, items, heading_id, label, title, section_id="treatments
             </a>
           </li>""" for t in items)
     return f"""
-    <section class="section treatments" id="{section_id}" aria-labelledby="{heading_id}">
+    <section class="section treatments{' section--stone' if stone else ''}" id="{section_id}" aria-labelledby="{heading_id}">
       <div class="container">
         <div class="section__head fade">
           <p class="label">{e(label)}</p>
@@ -341,7 +341,7 @@ def media_map(c):
     return json.dumps({n: widths(n) for n in sorted(names)})
 
 
-def cases_section(c, R, indices, heading_id, label, title, lede, link=None, filters=False, h1=False):
+def cases_section(c, R, indices, heading_id, label, title, lede, link=None, filters=False, h1=False, stone=False):
     tag = "h1" if h1 else "h2"
     note = '<p class="cases__note">Sample cases using stock photographs, for demonstration only.</p>' if any(c["cases"][i]["sample"] for i in indices) else ""
     filter_html = ""
@@ -354,7 +354,7 @@ def cases_section(c, R, indices, heading_id, label, title, lede, link=None, filt
                        f'<button type="button" data-filter="all" aria-pressed="true">All</button>{"".join(cats)}</div>')
     more = f'<p class="section__more"><a class="link" href="{link[0]}">{e(link[1])}</a></p>' if link else ""
     return f"""
-    <section class="section cases" aria-labelledby="{heading_id}" data-cases-block>
+    <section class="section cases{' section--stone' if stone else ''}" aria-labelledby="{heading_id}" data-cases-block>
       <div class="container">
         <div class="section__head fade">
           <p class="label">{e(label)}</p>
@@ -370,48 +370,42 @@ def cases_section(c, R, indices, heading_id, label, title, lede, link=None, filt
     </section>"""
 
 
-def compare(c, R):
+def compare(c, R, stone=False):
     b = c["beforeAfter"]
-    sizes = "(min-width: 1200px) 1100px, 100vw"
     return f"""
-    <section class="section compare" aria-labelledby="compare-title">
+    <section class="section compare{' section--stone' if stone else ''}" aria-labelledby="compare-title">
       <div class="container compare__wrap">
         <div class="section__head fade">
           <p class="label">Before &amp; after</p>
           <h2 class="h2" id="compare-title">{e(b['title'])}</h2>
-          <p class="lede">{e(b['text'])}</p>
         </div>
-        <div class="ba fade" data-ba>
-          {picture(b['after'], sizes, 'After: the same smile with simulated whitening', R, pos='50% 50%')}
-          <div class="ba__before">{picture(b['before'], sizes, 'Before: the original smile', R, pos='50% 50%')}</div>
-          <span class="ba__tag ba__tag--before label" aria-hidden="true">Before</span>
-          <span class="ba__tag ba__tag--after label" aria-hidden="true">After</span>
-          <input class="ba__range" type="range" min="0" max="100" value="50" aria-label="Compare before and after">
-          <span class="ba__handle" aria-hidden="true"><span class="ba__grip"></span></span>
-        </div>
-        <p class="compare__note">{e(b['note'])}</p>
+        <figure class="compare__frame fade">
+          {picture(b['image'], '(min-width: 700px) 640px, 100vw', e(b['imageAlt']), R, pos=b.get('pos'))}
+          <figcaption class="compare__note">{e(b['note'])}</figcaption>
+        </figure>
       </div>
     </section>"""
 
 
 def first_visit(c, R):
+    """Edge-to-edge row of three photos, no gaps, a short title and two lines under each."""
     fv = c["firstVisit"]
     steps = "".join(f"""
-          <li class="fade">
-            <div class="card__media">{picture(st['image'], '(min-width: 900px) 30vw, 100vw', e(st['imageAlt']), R, pos=st.get('pos'))}</div>
+        <li class="pillar fade">
+          <div class="pillar__media">{picture(st['image'], '(min-width: 900px) 34vw, 100vw', e(st['imageAlt']), R, pos=st.get('pos'))}</div>
+          <div class="pillar__text">
             <h3 class="card__name">{e(st['title'])}</h3>
             <p class="card__line">{e(st['text'])}</p>
-          </li>""" for st in fv["steps"])
+          </div>
+        </li>""" for st in fv["steps"])
     return f"""
-    <section class="section visit-steps" aria-labelledby="first-visit-title">
-      <div class="container">
-        <div class="section__head fade">
-          <p class="label">{e(fv['label'])}</p>
-          <h2 class="h2" id="first-visit-title">{e(fv['title'])}</h2>
-        </div>
-        <ol class="grid3 grid3--steps">{steps}
-        </ol>
+    <section class="section pillars" aria-labelledby="first-visit-title">
+      <div class="container section__head fade">
+        <p class="label">{e(fv['label'])}</p>
+        <h2 class="h2" id="first-visit-title">{e(fv['title'])}</h2>
       </div>
+      <ol class="pillars__row">{steps}
+      </ol>
     </section>"""
 
 
@@ -490,11 +484,11 @@ def visit(c, R, heading="h2"):
     </section>"""
 
 
-def planner(c, R):
+def planner(c, R, stone=False):
     p = c["planner"]
     opts = "".join(f'<li><button type="button" data-treatment="{t["slug"]}" aria-pressed="false">{e(t["name"])}</button></li>' for t in c["treatments"])
     return f"""
-    <section class="section planner" id="plan" aria-labelledby="planner-title" data-planner>
+    <section class="section planner{' section--stone' if stone else ''}" id="plan" aria-labelledby="planner-title" data-planner>
       <div class="container split">
         <div class="split__media fade">{picture(p['image'], '(min-width: 900px) 42vw, 100vw', e(p['imageAlt']), R, pos=p.get('pos'))}</div>
         <div class="split__text planner__body fade">
@@ -539,12 +533,15 @@ def planner(c, R):
     </section>"""
 
 
-def cta_band(c, R, text):
+def cta_band(c, R, text, line=""):
+    """Compact deep-navy band: centred heading, one line, underline link."""
+    extra = f"<p>{e(line)}</p>" if line else ""
     return f"""
-    <section class="section band" aria-labelledby="band-title">
-      <div class="container">
-        <h2 class="h2 fade" id="band-title">{e(text)}</h2>
-        <p><a class="link" href="{R}book/">{e(c["hero"]["cta"])}</a></p>
+    <section class="band" aria-labelledby="band-title">
+      <div class="container band__inner fade">
+        <h2 class="h2" id="band-title">{e(text)}</h2>
+        {extra}
+        <p><a class="link link--light" href="{R}book/">{e(c["hero"]["cta"])}</a></p>
       </div>
     </section>"""
 
@@ -556,23 +553,22 @@ def page_home(c, R):
     featured = list(range(min(c["featuredCases"], len(c["cases"]))))
     return "".join([
         hero(c, R, h["label"], h["lines"], h["lede"], f"{R}book/", h["cta"], h["image"], h["imageAlt"], h["pos"]),
+        first_visit(c, R),
+        treatment_grid(c, R, c["treatments"], "treatments-title", "Treatments", "Care for the whole family", stone=True),
         f"""
-    <section class="section intro" aria-labelledby="intro-title">
-      <div class="container intro__grid">
-        <div class="intro__text fade">
-          <p class="label" id="intro-title">{e(i['label'])}</p>
-          <p class="statement">{e(i['text'])}</p>
-          <p><a class="link" href="#doctor">{e(i['link'])}</a></p>
-        </div>
-        <div class="intro__media fade">{picture(i['image'], '(min-width: 900px) 30vw, 100vw', e(i['imageAlt']), R, pos=i.get('pos'))}</div>
+    <section class="clinic" aria-labelledby="clinic-title">
+      {picture(i['image'], '100vw', e(i['imageAlt']), R, pos=i.get('pos'))}
+      <div class="clinic__content fade">
+        <p class="label" id="clinic-title">{e(i['label'])}</p>
+        <p class="clinic__text">{e(i['text'])}</p>
+        <a class="link link--light" href="#doctor">{e(i['link'])}</a>
       </div>
     </section>""",
-        treatment_grid(c, R, c["treatments"], "treatments-title", "Treatments", "Care for the whole family"),
-        first_visit(c, R),
         compare(c, R),
-        cases_section(c, R, featured, "cases-title", "Results", "Results that look natural", "", link=(f"{R}results/", "All results")),
+        cases_section(c, R, featured, "cases-title", "Results", "Results that look natural", "", link=(f"{R}results/", "All results"), stone=True),
         doctor(c, R),
         reviews(c),
+        cta_band(c, R, "Book a visit on FC Road.", "Monday to Saturday, until 8 PM. Every step explained first."),
         visit(c, R),
     ])
 
@@ -609,7 +605,7 @@ def page_treatment(c, R, idx):
     </section>""",
         cases_section(c, R, cases, "cases-title", "Results", f"{t['name']}: sample cases", "", link=(f"{R}results/", "All results")) if cases else "",
         f"""
-    <section class="section faq" aria-labelledby="faq-title">
+    <section class="section section--stone faq" aria-labelledby="faq-title">
       <div class="container split split--text-first">
         <div class="section__head fade">
           <p class="label">Questions</p>
@@ -619,17 +615,17 @@ def page_treatment(c, R, idx):
         </div>
       </div>
     </section>""",
+        cta_band(c, R, f"Talk it through with {c['doctors'][0]['name']}.", "A first visit is a conversation. Nothing is booked until you decide."),
         planner(c, R),
-        treatment_grid(c, R, others, "others-title", "Other treatments", "You may also need", section_id="more"),
-        cta_band(c, R, f"Talk it through with {c['doctors'][0]['name']}."),
+        treatment_grid(c, R, others, "others-title", "Other treatments", "You may also need", section_id="more", stone=True),
     ])
 
 
 def page_results(c, R):
     return "".join([
         cases_section(c, R, list(range(len(c["cases"]))), "page-title", "Results", "Results", "Natural changes, planned around each face.", filters=True, h1=True),
-        compare(c, R),
-        cta_band(c, R, "Every plan starts with a conversation."),
+        cta_band(c, R, "Every plan starts with a conversation.", "Bring your questions; we will show you your options."),
+        compare(c, R, stone=True),
     ])
 
 
@@ -661,7 +657,7 @@ def page_book(c, R):
         </div>
         <p class="book__note">WhatsApp opens with your request already written. Nothing is sent until you press send.</p>
       </div>
-    </section>""", planner(c, R), visit(c, R)])
+    </section>""", planner(c, R, stone=True), visit(c, R)])
 
 
 # ---------------------------------------------------------------------------------------------- icons

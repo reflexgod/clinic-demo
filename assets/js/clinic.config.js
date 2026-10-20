@@ -110,9 +110,9 @@ window.CLINIC = {
     label: 'The clinic',
     text: 'Check-ups for children and parents, fillings, root canals, implants and aligners, under one roof, a short walk from Fergusson College.',
     link: 'Meet Dr. Mehta',
-    image: 'photo-family',
-    imageAlt: 'A mother and her young daughter laughing together on a sofa',
-    pos: '50% 50%',
+    image: 'photo-clinic-chairs',
+    imageAlt: 'A bright treatment room with dental chairs and tall windows',
+    pos: '50% 55%',
   },
 
   // Treatments grid on the homepage, in this order. Each also gets its own page.
@@ -245,12 +245,13 @@ window.CLINIC = {
     ],
   },
 
+  // One sample photo until the clinic supplies a real, consented before/after pair.
   beforeAfter: {
     title: 'Before and after',
-    text: 'Drag to compare.',
-    before: 'sample-ba-before',
-    after: 'sample-ba-after',
-    note: 'Sample · simulated whitening on a stock photo, for demonstration only',
+    image: 'sample-ba-before',
+    imageAlt: 'Sample photo: a close-up of a smile',
+    pos: '50% 50%',
+    note: 'Before/after comparison will appear here with a real, consented case.',
   },
 
   // Sample cases (stock portraits). Set sample: false only for real, consented cases.
