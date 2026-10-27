@@ -387,7 +387,7 @@ window.CLINIC = {
   riya: {
     enabled: true,
     name: 'Riya',
-    webhookUrl: 'https://viraaj19.app.n8n.cloud/webhook/36a7ae43-365d-4cc8-b5bc-33d197384391/chat',
+    webhookUrl: 'https://n8n.viraajautomates.tech/webhook/36a7ae43-365d-4cc8-b5bc-33d197384391/chat',
     welcome: 'Hello, I’m Riya. I can answer questions about the clinic or take an appointment request for you.',
     quick: ['Clinic timings', 'Treatments', 'Book a visit', 'Where are you?'],
     // Proactive bubble beside the launcher: once per session, after `delay` seconds or `scroll` % of the
