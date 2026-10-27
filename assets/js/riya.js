@@ -1,7 +1,7 @@
 /* ==========================================================================
    Riya, the clinic's AI receptionist: chat window. Loaded on the launcher's first click.
-   With config.riya.webhookUrl set, it talks to an n8n Chat Trigger webhook using the request
-   the @n8n/chat widget sends: POST { action: 'sendMessage', sessionId, chatInput } -> { output }.
+   With config.riya.webhookUrl set, it talks to the live chat webhook:
+   POST { action: 'sendMessage', sessionId, chatInput } -> { output }.
    With no webhook, it gives demo answers built from clinic.config.js.
    Nothing is sent until the visitor sends a message or taps a suggestion.
    ========================================================================== */

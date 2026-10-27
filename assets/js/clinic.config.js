@@ -382,12 +382,12 @@ window.CLINIC = {
     virtual: { label: 'From home', title: 'Video consultation', text: 'Talk it through and share any X-rays before you travel.', image: 'photo-video-call', imageAlt: 'A woman on a video call at a table by a window', pos: '70% 50%', message: 'Hello Smile Dental Clinic, I’d like to book a video consultation.' },
   },
 
-  // Riya, the AI receptionist. With a webhookUrl (n8n Chat Trigger) she answers live;
+  // Riya, the AI receptionist. With a webhookUrl (the live chat service) she answers live;
   // with webhookUrl empty she gives demo answers drawn from this config.
   riya: {
     enabled: true,
     name: 'Riya',
-    webhookUrl: 'https://n8n.viraajautomates.tech/webhook/36a7ae43-365d-4cc8-b5bc-33d197384391/chat',
+    webhookUrl: 'https://chat.viraajautomates.tech/webhook/36a7ae43-365d-4cc8-b5bc-33d197384391/chat',
     welcome: 'Hello, I’m Riya. I can answer questions about the clinic or take an appointment request for you.',
     quick: ['Clinic timings', 'Treatments', 'Book a visit', 'Where are you?'],
     // Proactive bubble beside the launcher: once per session, after `delay` seconds or `scroll` % of the
