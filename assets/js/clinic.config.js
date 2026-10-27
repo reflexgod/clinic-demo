@@ -19,12 +19,12 @@ window.CLINIC = {
   demo: true,
 
   site: {
-    url: 'https://demo.viraajautomates.tech/', // canonical address, with trailing slash
+    url: 'https://demo.svayra.com/', // canonical address, with trailing slash
     lang: 'en-IN',
     locale: 'en_IN',
     noindex: true, // keep out of search engines (also robots.txt) until launch
     year: 2026,
-    credit: 'Demo prepared by Viraaj',
+    credit: 'Demo prepared by Svayra',
   },
 
   name: 'Smile Dental Clinic',
@@ -387,7 +387,7 @@ window.CLINIC = {
   riya: {
     enabled: true,
     name: 'Riya',
-    webhookUrl: 'https://chat.viraajautomates.tech/webhook/36a7ae43-365d-4cc8-b5bc-33d197384391/chat',
+    webhookUrl: 'https://chat.svayra.com/webhook/36a7ae43-365d-4cc8-b5bc-33d197384391/chat',
     welcome: 'Hello, I’m Riya. I can answer questions about the clinic or take an appointment request for you.',
     quick: ['Clinic timings', 'Treatments', 'Book a visit', 'Where are you?'],
     // Proactive bubble beside the launcher: once per session, after `delay` seconds or `scroll` % of the
