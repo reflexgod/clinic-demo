@@ -1,7 +1,8 @@
 /* ==========================================================================
    Riya, the clinic's AI receptionist: chat window. Loaded on the launcher's first click.
    With config.riya.webhookUrl set, it talks to the live chat webhook:
-   POST { action: 'sendMessage', sessionId, chatInput } -> { output }.
+   With config.riya.clinicId: POST { clinic_id, session_id, message } -> { reply }.
+   Without it (older service): POST { action: 'sendMessage', sessionId, chatInput } -> { output }.
    With no webhook, it gives demo answers built from clinic.config.js.
    Nothing is sent until the visitor sends a message or taps a suggestion.
    ========================================================================== */
@@ -137,14 +138,16 @@ export function mountRiya({ clinic: C, launcher, mascot, panel: shell = null }) 
     const res = await fetch(R.webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'sendMessage', sessionId, chatInput: text }),
+      body: JSON.stringify(R.clinicId
+        ? { clinic_id: R.clinicId, session_id: sessionId, message: text }
+        : { action: 'sendMessage', sessionId, chatInput: text }),
     });
     const raw = await res.text();
     if (!res.ok) throw new Error(String(res.status));
     try {
       const data = JSON.parse(raw);
       const item = Array.isArray(data) ? data[0] : data;
-      return item.output ?? item.text ?? item.message ?? raw;
+      return item.reply ?? item.output ?? item.text ?? item.message ?? raw;
     } catch (e) {
       return raw;
     }
