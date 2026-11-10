@@ -139,7 +139,7 @@ export function mountRiya({ clinic: C, launcher, mascot, panel: shell = null }) 
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(R.clinicId
-        ? { clinic_id: R.clinicId, session_id: sessionId, message: text }
+        ? { clinic_id: R.clinicId, session_id: sessionId, message: text, page: (document.title || location.pathname).slice(0, 80) }
         : { action: 'sendMessage', sessionId, chatInput: text }),
     });
     const raw = await res.text();
